@@ -1,6 +1,6 @@
-import { UpdateResult } from "typeorm";
+import { FindManyOptions, UpdateResult } from "typeorm";
 import { Product } from "../../entities/entities";
-import { CreateOrUpdateProductPayload } from "../../interfaces/interfaces";
+import { CreateOrUpdateProductPayload, ProductFilters } from "../../interfaces/interfaces";
 
 export abstract class ProductRepository {
     abstract createProduct(payload: CreateOrUpdateProductPayload): Promise<Product>;
@@ -8,6 +8,6 @@ export abstract class ProductRepository {
     abstract getProductById(id: Product['id']): Promise<Product>;
     abstract getProductByInternationalCode(code: Product['internationalCode']): Promise<Product>;
     abstract getProducts(client?: number): Promise<Product[]>;
-    abstract getPaginatedProducts(limit: number, offset: number): Promise<[Product[], total: number]>;
+    abstract getPaginatedProducts(options: FindManyOptions<Product>): Promise<[Product[], total: number]>;
     abstract updateProductById(id: Product['id'], payload: CreateOrUpdateProductPayload): Promise<UpdateResult>;
 }

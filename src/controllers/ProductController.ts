@@ -1,4 +1,4 @@
-import { CreateOrUpdateProductPayload } from "../interfaces/interfaces";
+import { CreateOrUpdateProductPayload, ProductFilters } from "../interfaces/interfaces";
 import { errorHandler, responseHandler } from "../helpers/httpHelpers";
 import { Product } from "../entities/entities";
 import { productProvider } from '../providers/productRepositoryProvider';
@@ -26,10 +26,10 @@ export abstract class ProductController {
         }
     }
 
-    static async getPaginatedProducts(req: Request, res: Response) {
+    static async getPaginatedProducts(req: Request<{}, {}, {}, ProductFilters>, res: Response) {
         try {
             const { limit, offset } = req.query;
-            const [products, total] = await productProvider.getPaginatedProducts(+limit, +offset);
+            const [products, total] = await productProvider.getPaginatedProducts(req.query);
 
             const response = {
                 response: ProductResource.collection(products),

@@ -10,6 +10,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@azure/identity": "^4.13.1",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
     "@types/nodemailer": "^6.4.23",
     "bcrypt": "^6.0.0",
     "colors": "^1.4.0",

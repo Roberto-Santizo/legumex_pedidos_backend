@@ -30,6 +30,15 @@ export interface CreateOrUpdateProductPayload {
     client: Client;
 }
 
+export interface ProductFilters {
+    limit: number;
+    offset: number; 
+    client: string; 
+    internationalCode: string;
+    localCode: string; 
+    name: string;
+}
+
 
 //ORDERS
 export interface OrderProductPayload {

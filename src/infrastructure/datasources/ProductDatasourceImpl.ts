@@ -1,4 +1,4 @@
-import { FindOptionsWhere, Repository, UpdateResult } from 'typeorm';
+import { FindManyOptions, FindOptionsWhere, Repository, UpdateResult } from 'typeorm';
 import { ProductDatasource } from '../../domain/domain';
 import { Product } from '../../entities/entities';
 import { CreateOrUpdateProductPayload } from '../../interfaces/interfaces';
@@ -11,13 +11,8 @@ export class ProductDatasourceImpl implements ProductDatasource {
         this.repo = appDatasource.getRepository(Product);
     }
 
-    async getPaginatedProducts(limit: number, offset: number): Promise<[Product[], total: number]> {
-        const [data, total] = await this.repo.findAndCount({
-            order: { id: 'ASC' },
-            take: limit,
-            skip: (offset - 1) * limit,
-            relations: ['client']
-        });
+    async getPaginatedProducts(options: FindManyOptions<Product>): Promise<[Product[], total: number]> {
+        const [data, total] = await this.repo.findAndCount(options);
         return [data, total];
     }
 

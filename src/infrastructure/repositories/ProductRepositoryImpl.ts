@@ -1,13 +1,13 @@
-import { CreateOrUpdateProductPayload } from '../../interfaces/interfaces';
+import { CreateOrUpdateProductPayload, ProductFilters } from '../../interfaces/interfaces';
 import { Product } from '../../entities/entities';
 import { ProductDatasource, ProductRepository } from '../../domain/domain';
-import { UpdateResult } from 'typeorm';
+import { FindManyOptions, UpdateResult } from 'typeorm';
 
 export class ProductRepositoryImpl implements ProductRepository {
     constructor(private datasource: ProductDatasource) { }
 
-    getPaginatedProducts(limit: number, offset: number): Promise<[Product[], total: number]> {
-        return this.datasource.getPaginatedProducts(limit, offset);
+    getPaginatedProducts(options: FindManyOptions<Product>): Promise<[Product[], total: number]> {
+        return this.datasource.getPaginatedProducts(options);
     }
 
     getProductById(id: Product['id']): Promise<Product> {

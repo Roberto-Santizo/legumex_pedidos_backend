@@ -1,7 +1,8 @@
+import { FindManyOptions, Like } from "typeorm";
 import { ProductRepository } from "../domain/domain";
 import { Product } from "../entities/entities";
 import { ConflictError, NotFoundError } from "../infrastructure/infrastructure";
-import { CreateOrUpdateProductPayload } from "../interfaces/interfaces";
+import { CreateOrUpdateProductPayload, ProductFilters } from "../interfaces/interfaces";
 import { clientProvider } from "../providers/clientRepositoryProvider";
 
 export class ProductService {
@@ -62,7 +63,30 @@ export class ProductService {
         return this.repository.getProducts(client);
     }
 
-    async getPaginatedProducts(limit: number, offset: number){
-        return this.repository.getPaginatedProducts(limit, offset);
+    async getPaginatedProducts(filters: ProductFilters) {
+        let options: FindManyOptions<Product> = {
+            order: { id: 'ASC' },
+            take: filters.limit,
+            skip: (filters.offset - 1) * filters.limit,
+            relations: ['client']
+        }
+
+        if (filters.client) {
+            options = { ...options, where: { ...options.where, client: { id: +filters.client } } }
+        }
+
+        if (filters.internationalCode) {
+            options = { ...options, where: { ...options.where, internationalCode: Like(`%${filters.internationalCode}%`) } }
+        }
+
+        if (filters.localCode) {
+            options = { ...options, where: { ...options.where, localCode: Like(`%${filters.localCode}%`) } }
+        }
+
+        if (filters.name) {
+            options = { ...options, where: { ...options.where, name: Like(`%${filters.name}%`) } }
+        }
+
+        return this.repository.getPaginatedProducts(options);
     }
 }
