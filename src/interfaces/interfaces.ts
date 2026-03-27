@@ -30,6 +30,13 @@ export interface CreateOrUpdateProductPayload {
     client: Client;
 }
 
+export interface UpdateProductPricePayload {
+    new_price: number;
+    last_price: number;
+    product: Product;
+    createdAt: string;
+}
+
 export interface ProductFilters {
     limit: number;
     offset: number; 

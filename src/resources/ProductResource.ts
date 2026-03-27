@@ -1,4 +1,4 @@
-import { Product } from "../entities/entities";
+import { Product, ProductPriceBinnacle } from "../entities/entities";
 
 export class ProductResource {
     static jsonDetails(product: Product) {
@@ -12,11 +12,12 @@ export class ProductResource {
             units_per_box: product.units_per_box,
             client_id: product.client.id,
             client: product.client.name,
-            boxes_per_pallet: product.boxes_per_pallet
+            boxes_per_pallet: product.boxes_per_pallet,
+            prices: product.prices
         }
     }
 
-    static collection(products: Product[]){
+    static collection(products: Product[]) {
         return products.map((product) => this.jsonDetails(product));
     }
 }

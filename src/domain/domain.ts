@@ -7,6 +7,8 @@ export { OrderProductDatasource } from "./datasources/OrderProductDatasource";
 export { OrderProductRepository } from "./repositories/OrderProductRepository";
 export { OrderRepository } from "./repositories/OrderRepository";
 export { ProductDatasource } from "./datasources/ProductDatasource";
+export { ProductPriceBinnacleDatasource } from "./datasources/ProductPriceBinnacleDatasource";
+export { ProductPriceBinnacleRepository } from "./repositories/ProductPriceBinnacleRepository";
 export { ProductRepository } from "./repositories/ProductRepository";
 export { UserClientDatasource } from "./datasources/UserClientDatasource";
 export { UserClientRepository } from "./repositories/UserClientRepository";

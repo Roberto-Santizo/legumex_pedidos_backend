@@ -17,7 +17,7 @@ export class ProductDatasourceImpl implements ProductDatasource {
     }
 
     getProductById(id: Product['id']): Promise<Product> {
-        return this.repo.findOne({ where: { id }, relations: ['client'] })
+        return this.repo.findOne({ where: { id }, relations: ['client', 'prices'] })
     }
 
     updateProductById(id: Product['id'], payload: CreateOrUpdateProductPayload): Promise<UpdateResult> {

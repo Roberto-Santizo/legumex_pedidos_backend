@@ -49,10 +49,12 @@ router.patch('/:id',
     body('presentation').notEmpty().withMessage('La presentación del producto es requerida').isNumeric().withMessage('La presentación debe de ser un dato númerico'),
     body('price').notEmpty().withMessage('El precio del producto es requerido').isNumeric().withMessage('El precio del producto debe de ser un dato númerico'),
     body('units_per_box').notEmpty().withMessage('Las unidades por caja son requeridas').isNumeric().withMessage('Las unidades por caja debe de ser un dato númerico'),
+    body('boxes_per_pallet').notEmpty().withMessage('Las cajas por pallet son requeridas').isNumeric().withMessage('Las cajas por pallet debe de ser un dato númerico'),
     body('client_id').notEmpty().withMessage('El cliente es requerido').isNumeric().withMessage('El cliente debe de ser un dato númerico'),
     returnValidationErrors,
     ProductController.update
 );
+
 
 
 export default router;

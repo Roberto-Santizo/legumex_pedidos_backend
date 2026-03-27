@@ -5,5 +5,7 @@ export { OrderProductDatasourceImpl } from "./datasources/OrderProductDatasource
 export { OrderProductRepositoryImpl } from "./repositories/OrderProductRepositoryImpl";
 export { OrderRepositoryImpl } from "./repositories/OrderRepositoryImpl";
 export { ProductDatasourceImpl } from "./datasources/ProductDatasourceImpl";
+export { ProductPriceBinnacleDatasourceImpl } from "./datasources/ProductPriceBinnacleDatasourceImpl";
+export { ProductPriceBinnacleRepositoryImpl } from "./repositories/ProductPriceBinnacleRepositoryImpl";
 export { ProductRepositoryImpl } from "./repositories/ProductRepositoryImpl";
 export * from './errors/errors';

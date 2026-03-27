@@ -1,9 +1,11 @@
-import { FindManyOptions, Like } from "typeorm";
-import { ProductRepository } from "../domain/domain";
-import { Product } from "../entities/entities";
+import { clientProvider } from "../providers/clientRepositoryProvider";
 import { ConflictError, NotFoundError } from "../infrastructure/infrastructure";
 import { CreateOrUpdateProductPayload, ProductFilters } from "../interfaces/interfaces";
-import { clientProvider } from "../providers/clientRepositoryProvider";
+import { FindManyOptions, Like } from "typeorm";
+import { getCurrentDate } from "../utils/date";
+import { Product } from "../entities/entities";
+import { productPriceBinnacleRepository } from "../providers/productPriceBinnacleRepositoryProvider";
+import { ProductRepository } from "../domain/domain";
 
 export class ProductService {
     constructor(private repository: ProductRepository) { }
@@ -55,6 +57,10 @@ export class ProductService {
         await this._validateCodes(payload.localCode, payload.internationalCode, id);
         const client = await clientProvider.getClientById(payload.client_id);
         payload.client = client;
+
+        if (product.price != payload.price) {
+            await productPriceBinnacleRepository.updateProductPrice({ last_price: product.price, new_price: payload.price, product: product, createdAt: getCurrentDate() });
+        }
 
         return this.repository.updateProductById(product.id, payload);
     }
