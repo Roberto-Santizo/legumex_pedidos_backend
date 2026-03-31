@@ -4,6 +4,7 @@ import { Product } from "../entities/entities";
 import { productProvider } from '../providers/productRepositoryProvider';
 import { ProductResource } from '../resources/resources';
 import { Request, Response } from "express";
+import { TransportOptions } from "../entities/Order";
 
 export abstract class ProductController {
     static async store(req: Request<{}, {}, CreateOrUpdateProductPayload>, res: Response) {
@@ -17,8 +18,8 @@ export abstract class ProductController {
 
     static async index(req: Request, res: Response) {
         try {
-            const { client } = req.query;
-            const products = await productProvider.getProducts(+client);
+            const { client, transportType } = req.query;
+            const products = await productProvider.getProducts(+client, transportType as TransportOptions);
 
             responseHandler(res, 200, 'Productos Obtenidos Correctamente', ProductResource.collection(products));
         } catch (error) {

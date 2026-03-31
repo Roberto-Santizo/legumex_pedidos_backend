@@ -7,7 +7,7 @@ export abstract class ProductRepository {
     abstract getProductByLocalCode(code: Product['localCode']): Promise<Product>;
     abstract getProductById(id: Product['id']): Promise<Product>;
     abstract getProductByInternationalCode(code: Product['internationalCode']): Promise<Product>;
-    abstract getProducts(client?: number): Promise<Product[]>;
+    abstract getProducts(options: FindManyOptions<Product>): Promise<Product[]>;
     abstract getPaginatedProducts(options: FindManyOptions<Product>): Promise<[Product[], total: number]>;
     abstract updateProductById(id: Product['id'], payload: CreateOrUpdateProductPayload): Promise<UpdateResult>;
 }

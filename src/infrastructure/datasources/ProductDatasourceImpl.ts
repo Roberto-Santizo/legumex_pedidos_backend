@@ -25,9 +25,8 @@ export class ProductDatasourceImpl implements ProductDatasource {
         return this.repo.update({ id }, data);
     }
 
-    getProducts(client?: number): Promise<Product[]> {
-        const options: FindOptionsWhere<Product> = client ? { client: { id: client } } : {}
-        return this.repo.find({ order: { 'id': 'ASC' }, relations: ['client'], where: options });
+    getProducts(options: FindManyOptions<Product>): Promise<Product[]> {
+        return this.repo.find(options);
     }
 
     getProductByLocalCode(code: Product['localCode']): Promise<Product> {

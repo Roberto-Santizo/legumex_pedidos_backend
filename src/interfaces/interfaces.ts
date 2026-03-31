@@ -28,6 +28,8 @@ export interface CreateOrUpdateProductPayload {
     units_per_box: number;
     boxes_per_pallet: number;
     client: Client;
+    dc: string;
+    transportType: TransportOptions;
 }
 
 export interface UpdateProductPricePayload {

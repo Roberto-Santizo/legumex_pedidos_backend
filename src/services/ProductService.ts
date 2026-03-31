@@ -6,6 +6,7 @@ import { getCurrentDate } from "../utils/date";
 import { Product } from "../entities/entities";
 import { productPriceBinnacleRepository } from "../providers/productPriceBinnacleRepositoryProvider";
 import { ProductRepository } from "../domain/domain";
+import { TransportOptions } from "../entities/Order";
 
 export class ProductService {
     constructor(private repository: ProductRepository) { }
@@ -65,8 +66,17 @@ export class ProductService {
         return this.repository.updateProductById(product.id, payload);
     }
 
-    async getProducts(client?: number) {
-        return this.repository.getProducts(client);
+    async getProducts(client?: number, transportType?: TransportOptions) {
+        let options: FindManyOptions<Product> = { relations: ['client'] };
+
+        if (client) {
+            options = { ...options, where: { client: { id: client } } }
+        }
+
+        if (transportType) {
+            options = { ...options, where: { ...options.where, transportType: transportType } }
+        }
+        return this.repository.getProducts(options);
     }
 
     async getPaginatedProducts(filters: ProductFilters) {

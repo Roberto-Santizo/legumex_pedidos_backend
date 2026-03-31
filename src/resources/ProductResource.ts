@@ -1,4 +1,4 @@
-import { Product, ProductPriceBinnacle } from "../entities/entities";
+import { Product } from "../entities/entities";
 
 export class ProductResource {
     static jsonDetails(product: Product) {
@@ -13,7 +13,9 @@ export class ProductResource {
             client_id: product.client.id,
             client: product.client.name,
             boxes_per_pallet: product.boxes_per_pallet,
-            prices: product.prices
+            prices: product.prices,
+            transportType: product.transportType,
+            dc: product.dc,
         }
     }
 

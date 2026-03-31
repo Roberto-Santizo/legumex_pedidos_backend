@@ -17,8 +17,8 @@ export class ProductRepositoryImpl implements ProductRepository {
         return this.datasource.updateProductById(id, payload);
     }
 
-    getProducts(client?: number): Promise<Product[]> {
-        return this.datasource.getProducts(client);
+    getProducts(options: FindManyOptions<Product>): Promise<Product[]> {
+        return this.datasource.getProducts(options);
     }
 
     getProductByLocalCode(code: Product['localCode']): Promise<Product> {

@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Client, OrderProduct } from "./entities";
 import { ProductPriceBinnacle } from "./ProductPriceBinnacle";
+import { TransportOptions } from "./Order";
 
 @Entity()
 export class Product {
@@ -10,11 +11,17 @@ export class Product {
     @Column()
     name: string;
 
-    @Column({ unique: true })
+    @Column()
     localCode: string;
 
-    @Column({ unique: true })
+    @Column()
     internationalCode: string;
+
+    @Column()
+    dc: string;
+
+    @Column('enum', { enum: TransportOptions, default: TransportOptions.CROSSDOCK })
+    transportType: TransportOptions;
 
     @Column('float')
     price: number;
