@@ -3,7 +3,7 @@
         "outDir": "./dist",
         "rootDir": "./src",
         "isolatedModules": true,
-        "lib": ["esnext"],
+        "lib": ["ES2020", "DOM"],
         "target": "es6",
         "moduleResolution": "NodeNext",
         "module": "NodeNext",
