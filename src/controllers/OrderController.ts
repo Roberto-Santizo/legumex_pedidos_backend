@@ -104,6 +104,25 @@ export abstract class OrderController {
         }
     }
 
+    static async getOrderItemById(req: Request<{ id: OrderProduct['id'] }>, res: Response) {
+        try {
+            const item = await orderProductProvider.getItemById(req.params.id);
+            responseHandler(res, 200, 'Producto de Orden Obtenido Correctamente', OrderResource.orderItem(item));
+        } catch (error) {
+            errorHandler(error, res);
+        }
+    }
+
+    static async updateOrderItemById(req: Request<{ id: Order['id'], itemId: OrderProduct['id'] }, {}, OrderProductPayload>, res: Response) {
+        try {
+            await orderProductProvider.updateItemById(req.params.id, req.params.itemId, req.body);
+
+            responseHandler(res, 200, 'Producto de Orden actualizado Correctamente');
+        } catch (error) {
+            errorHandler(error, res);
+        }
+    }
+
     static async deleteItem(req: Request<{ id: Order['id'], itemId: OrderProduct['id'] }>, res: Response) {
         try {
             await orderProductProvider.deleteOrderProductById(req.params.itemId);

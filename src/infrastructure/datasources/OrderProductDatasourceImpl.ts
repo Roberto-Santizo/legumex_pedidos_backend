@@ -1,7 +1,7 @@
 import { Order, OrderProduct } from "../../entities/entities";
 import { OrderProductDatasource } from "../../domain/domain";
 import { OrderProductPayload } from "../../interfaces/interfaces";
-import { DeleteResult, Repository } from "typeorm";
+import { DeleteResult, Repository, UpdateResult } from "typeorm";
 import appDatasource from "../../config/datasource";
 
 export class OrderProductDatasourceImpl implements OrderProductDatasource {
@@ -10,6 +10,11 @@ export class OrderProductDatasourceImpl implements OrderProductDatasource {
 
     constructor() {
         this.repo = appDatasource.getRepository(OrderProduct);
+    }
+
+    updateItemById(id: OrderProduct["id"], payload: OrderProductPayload): Promise<UpdateResult> {
+        const { product_id, ...data } = payload;
+        return this.repo.update({ id: id }, data);
     }
 
     getItemById(id: OrderProduct["id"]): Promise<OrderProduct> {

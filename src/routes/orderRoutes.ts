@@ -73,6 +73,23 @@ router.get('/getOrderItems/:id',
     OrderController.getOrderItems
 );
 
+router.get('/getOrderItemById/:id',
+    isAdministrativeUser,
+    param('id').notEmpty().withMessage('El ID es requerido').isNumeric().withMessage('El ID debe de ser un dato númerico'),
+    OrderController.getOrderItemById
+);
+
+router.patch('/updateOrderItemById/:id/:itemId',
+    isOrderOwner,
+    param('id').notEmpty().withMessage('El ID es requerido').isNumeric().withMessage('El ID debe de ser un dato númerico'),
+    param('itemId').notEmpty().withMessage('El ID es requerido').isNumeric().withMessage('El itemId debe de ser un dato númerico'),
+    body('product_id').notEmpty().withMessage('El producto es requerido').isNumeric().withMessage('El producto debe de ser un dato númerico'),
+    body('total_boxes').notEmpty().withMessage('El total de cajas es requerida').isNumeric().withMessage('El total de cajas debe de ser un dato númerico'),
+    body('po').notEmpty().withMessage('La po es requerida'),
+    returnValidationErrors,
+    OrderController.updateOrderItemById
+);
+
 router.delete('/deleteItem/:id/:itemId',
     isOrderOwner,
     param('id').notEmpty().withMessage('El ID es requerido').isNumeric().withMessage('El ID debe de ser un dato númerico'),

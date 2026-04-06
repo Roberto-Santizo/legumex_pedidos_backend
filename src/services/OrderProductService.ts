@@ -27,6 +27,18 @@ export class OrderProductService {
         return item;
     }
 
+    async updateItemById(id: Order['id'], itemId: OrderProduct['id'], payload: OrderProductPayload) {
+        await this.getItemById(itemId);
+
+        const product = await productProvider.getProductById(payload.product_id);
+        payload.product = product;
+        const order = await orderProvider.getOrderById(id)
+        payload.order = order;
+
+
+        return this.repository.updateItemById(itemId, payload);
+    }
+
     async deleteOrderProductById(id: OrderProduct['id']) {
         await this.getItemById(id);
         return this.repository.deleteItem(id);

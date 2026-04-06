@@ -41,7 +41,17 @@ export class OrderResource {
             total_pallets: (product.total_boxes / product.product.boxes_per_pallet),
             product: product.product.name,
             internationalCode: product.product.internationalCode,
-            po: product.po
+            po: product.po,
+            dc: product.product.dc
+        }
+    }
+
+    static orderItem(product: OrderProduct){
+        return {
+            id: product.id,
+            total_boxes: product.total_boxes,
+            po: product.po,
+            product_id: product.product.id
         }
     }
 

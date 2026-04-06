@@ -1,10 +1,14 @@
-import { DeleteResult } from 'typeorm';
+import { DeleteResult, UpdateResult } from 'typeorm';
 import { OrderProductDatasource, OrderProductRepository } from '../../domain/domain';
 import { Order, OrderProduct } from '../../entities/entities';
 import { OrderProductPayload } from '../../interfaces/interfaces';
 
 export class OrderProductRepositoryImpl implements OrderProductRepository {
     constructor(private datasource: OrderProductDatasource) { }
+
+    updateItemById(id: OrderProduct['id'], payload: OrderProductPayload): Promise<UpdateResult> {
+        return this.datasource.updateItemById(id, payload);
+    }
 
     getItemById(id: OrderProduct['id']): Promise<OrderProduct> {
         return this.datasource.getItemById(id);
