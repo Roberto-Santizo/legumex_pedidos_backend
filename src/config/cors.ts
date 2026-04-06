@@ -4,6 +4,8 @@ export const corsConfig: CorsOptions = {
     origin: function (origin, callback) {
         const whiteList = [process.env.FRONT_END_URL];
 
-        callback(null, true);
+        if (whiteList.includes(origin)) {
+            callback(null, true);
+        }
     }
 }
