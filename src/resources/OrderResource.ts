@@ -21,8 +21,8 @@ export class OrderResource {
 
     static orderTotals(products: OrderProduct[]) {
         const total_boxes = products.reduce((ac, item) => ac = ac + item.total_boxes, 0);
-        const total_price = products.reduce((ac, item) => ac = ac + (item.total_boxes * item.product.units_per_box) * item.product.price, 0);
-        const total_lbs = products.reduce((ac, item) => ac = ac + (item.total_boxes * item.product.units_per_box) * item.product.presentation, 0);
+        const total_price = products.reduce((ac, item) => ac = ac + (item.total_boxes) * item.product.price, 0);
+        const total_lbs = products.reduce((ac, item) => ac = ac + (item.total_boxes) * item.product.presentation, 0);
         const total_pallets = products.reduce((acc, item) => acc = acc + (item.total_boxes / item.product.boxes_per_pallet), 0);
         return {
             total_boxes: total_boxes,
@@ -46,7 +46,7 @@ export class OrderResource {
         }
     }
 
-    static orderItem(product: OrderProduct){
+    static orderItem(product: OrderProduct) {
         return {
             id: product.id,
             total_boxes: product.total_boxes,
