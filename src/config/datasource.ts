@@ -6,7 +6,7 @@ dotenv.config({ quiet: true });
 const options: DataSourceOptions = {
     type: "postgres",
     url: process.env.DB_URL,
-    entities: ["./src/entities/entities.ts"],
+    entities: [__dirname + "/../entity/**/*.js"],
     synchronize: true,
     ssl: process.env.STAGE == 'prod' ? { rejectUnauthorized: false } : false,
 };
