@@ -66,7 +66,7 @@ export class ProductService {
         return this.repository.updateProductById(product.id, payload);
     }
 
-    async getProducts(client?: number, transportType?: TransportOptions) {
+    async getProducts(client?: number, transportType?: TransportOptions, dc?: string) {
         let options: FindManyOptions<Product> = { relations: ['client'] };
 
         if (client) {
@@ -76,6 +76,11 @@ export class ProductService {
         if (transportType) {
             options = { ...options, where: { ...options.where, transportType: transportType } }
         }
+
+        if(dc){
+            options = { ...options, where: { ...options.where, dc: dc } }
+        }
+
         return this.repository.getProducts(options);
     }
 
