@@ -39,7 +39,7 @@ export class ProductService {
     }
 
     async createProduct(payload: CreateOrUpdateProductPayload) {
-        await this._validateCodes(payload.localCode, payload.internationalCode);
+        // await this._validateCodes(payload.localCode, payload.internationalCode);
         const client = await clientProvider.getClientById(payload.client_id);
         payload.client = client;
 
@@ -55,7 +55,7 @@ export class ProductService {
 
     async updateProductById(id: Product['id'], payload: CreateOrUpdateProductPayload) {
         const product = await this.getProductById(id);
-        await this._validateCodes(payload.localCode, payload.internationalCode, id);
+        // await this._validateCodes(payload.localCode, payload.internationalCode, id);
         const client = await clientProvider.getClientById(payload.client_id);
         payload.client = client;
 
