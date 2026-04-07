@@ -4,6 +4,7 @@ import { Client, OrderProduct, User } from "./entities";
 export enum TransportOptions {
     CROSSDOCK = "CROSSDOCK",
     PREPAID = "PREPAID",
+    COLLECT = "COLLECT"
 }
 
 @Entity()
