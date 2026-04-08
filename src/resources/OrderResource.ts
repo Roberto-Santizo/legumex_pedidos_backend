@@ -38,7 +38,7 @@ export class OrderResource {
             id: product.id,
             total_boxes: product.total_boxes,
             total_lbs: (product.total_boxes * product.product.presentation),
-            total_amount: (product.total_boxes * product.product.units_per_box) * product.product.price,
+            total_amount: (product.total_boxes) * product.product.price,
             total_pallets: (product.total_boxes / product.product.boxes_per_pallet),
             product: product.product.name,
             internationalCode: product.product.internationalCode,
