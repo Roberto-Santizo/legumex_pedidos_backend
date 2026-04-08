@@ -25,7 +25,7 @@ export class MicrosoftGraphEmailProvider implements EmailProvider {
             message: {
                 subject: "Order Confirmation",
                 body: { contentType: "HTML", content: OrderConfirmationTemplate.build(order, products) },
-                toRecipients: [{ emailAddress: { address: process.env.ORDER_COMFIRMATION_EMAIL } }]
+                toRecipients: [{ emailAddress: { address: process.env.ORDER_COMFIRMATION_EMAIL } }, { emailAddress: { address: order.user.email } }]
             },
         });
     }

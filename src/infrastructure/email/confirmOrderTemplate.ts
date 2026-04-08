@@ -103,7 +103,6 @@ export class OrderConfirmationTemplate {
                                             <tr style="background-color:#f1f5f9;">
                                                 <th align="left" style="padding:10px;">Product</th>
                                                 <th align="center" style="padding:10px;">Boxes</th>
-                                                <th align="center" style="padding:10px;">PO</th>
                                             </tr>
                                         </thead>
                                         <tbody>
