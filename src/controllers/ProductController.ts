@@ -31,7 +31,7 @@ export abstract class ProductController {
         try {
             const { limit, offset } = req.query;
             const [products, total] = await productProvider.getPaginatedProducts(req.query);
-
+            
             const response = {
                 response: ProductResource.collection(products),
                 total: total,

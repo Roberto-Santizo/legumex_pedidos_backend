@@ -108,6 +108,10 @@ export class ProductService {
             options = { ...options, where: { ...options.where, name: Like(`%${filters.name}%`) } }
         }
 
+        if (filters.dc) {
+            options = { ...options, where: { ...options.where, dc: Like(`%${filters.dc}%`) } }
+        }
+
         return this.repository.getPaginatedProducts(options);
     }
 }

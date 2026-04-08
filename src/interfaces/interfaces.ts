@@ -46,6 +46,7 @@ export interface ProductFilters {
     internationalCode: string;
     localCode: string; 
     name: string;
+    dc: string;
 }
 
 
