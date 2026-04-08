@@ -55,7 +55,6 @@ export interface OrderProductPayload {
     product: Product;
     order: Order;
     total_boxes: number;
-    po: string;
 }
 
 export interface CreateOrderProductPayload {
@@ -71,6 +70,7 @@ export interface CreateOrderPayload {
     transportType: TransportOptions;
     requiredByDate: string;
     createdAt: string;
+    po: string;
 }
 
 export interface ConfirmOrderPayload {

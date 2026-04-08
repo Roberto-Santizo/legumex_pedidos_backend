@@ -15,6 +15,7 @@ router.post('/',
     body('dc').notEmpty().withMessage('El dc es requerido'),
     body('transportType').notEmpty().withMessage('El tipo de transporte es requerido'),
     body('requiredByDate').notEmpty().withMessage('La fecha de requerimiento es requerida'),
+    body('po').notEmpty().withMessage('La PO de la orden es requerida'),
     returnValidationErrors,
     OrderController.store
 );
@@ -40,7 +41,6 @@ router.post('/addItem/:id',
     param('id').notEmpty().withMessage('El ID es requerido').isNumeric().withMessage('El ID debe de ser un dato númerico'),
     body('product_id').notEmpty().withMessage('El producto es requerido').isNumeric().withMessage('El producto debe de ser un dato númerico'),
     body('total_boxes').notEmpty().withMessage('El total de cajas es requerida').isNumeric().withMessage('El total de cajas debe de ser un dato númerico'),
-    body('po').notEmpty().withMessage('La po es requerida'),
     returnValidationErrors,
     OrderController.addItem
 );
@@ -85,7 +85,6 @@ router.patch('/updateOrderItemById/:id/:itemId',
     param('itemId').notEmpty().withMessage('El ID es requerido').isNumeric().withMessage('El itemId debe de ser un dato númerico'),
     body('product_id').notEmpty().withMessage('El producto es requerido').isNumeric().withMessage('El producto debe de ser un dato númerico'),
     body('total_boxes').notEmpty().withMessage('El total de cajas es requerida').isNumeric().withMessage('El total de cajas debe de ser un dato númerico'),
-    body('po').notEmpty().withMessage('La po es requerida'),
     returnValidationErrors,
     OrderController.updateOrderItemById
 );

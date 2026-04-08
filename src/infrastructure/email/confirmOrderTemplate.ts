@@ -15,9 +15,6 @@ export class OrderConfirmationTemplate {
                 <td align="center" style="padding:10px; border-bottom:1px solid #e2e8f0;">
                     ${p.total_boxes}
                 </td>
-                <td align="center" style="padding:10px; border-bottom:1px solid #e2e8f0;">
-                    ${p.po ?? '-'}
-                </td>
             </tr>
         `).join('');
 

@@ -8,6 +8,7 @@ export class OrderResource {
             customer: order.user.name + ' ' + order.user.lastName,
             email: order.user.email,
             dc: order.dc,
+            po: order.po,
             client: order.client.name,
             client_id: order.client.id,
             transportType: order.transportType,
@@ -41,7 +42,6 @@ export class OrderResource {
             total_pallets: (product.total_boxes / product.product.boxes_per_pallet),
             product: product.product.name,
             internationalCode: product.product.internationalCode,
-            po: product.po,
             dc: product.product.dc
         }
     }
@@ -50,7 +50,6 @@ export class OrderResource {
         return {
             id: product.id,
             total_boxes: product.total_boxes,
-            po: product.po,
             product_id: product.product.id
         }
     }

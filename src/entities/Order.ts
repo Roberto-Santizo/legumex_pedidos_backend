@@ -21,8 +21,11 @@ export class Order {
     @Column('enum', { enum: TransportOptions, default: TransportOptions.CROSSDOCK })
     transportType: TransportOptions;
 
-    @Column({ nullable: true })
+    @Column()
     dc: string;
+
+    @Column()
+    po: string;
 
     @Column()
     date: string;
