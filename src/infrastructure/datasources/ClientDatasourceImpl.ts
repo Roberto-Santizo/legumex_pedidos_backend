@@ -1,6 +1,6 @@
 import { ClientDatasource } from '../../domain/datasources/ClientDatasource';
 import { Repository, UpdateResult } from 'typeorm';
-import { UserClient, Client } from '../../entities/entities';
+import { Client } from '../../entities/entities';
 import appDatasource from '../../config/datasource';
 
 export class ClientDatasourceImpl implements ClientDatasource {

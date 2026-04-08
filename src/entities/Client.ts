@@ -2,6 +2,7 @@ import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } f
 import { Product } from "./Product";
 import { UserClient } from "./UserClient";
 import { Order } from "./Order";
+import { Dc } from "./Dc";
 
 @Entity()
 export class Client {
@@ -22,4 +23,7 @@ export class Client {
 
     @OneToMany(() => UserClient, user => user.client)
     users: UserClient[];
+
+    @OneToMany(() => Dc, dc => dc.client)
+    dcs: Dc[];
 }

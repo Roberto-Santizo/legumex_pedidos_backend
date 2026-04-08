@@ -1,4 +1,5 @@
 export { Client } from "./Client";
+export { Dc } from "./Dc";
 export { Order } from "./Order";
 export { OrderProduct } from "./OrderProduct";
 export { Product } from "./Product";

@@ -1,4 +1,4 @@
-import { authRoutes, clientRoutes, orderRoutes, productRoutes, reportRoutes } from "./routes/routes";
+import { authRoutes, clientRoutes, dcRoutes, orderRoutes, productRoutes, reportRoutes } from "./routes/routes";
 import { corsConfig } from "./config/cors";
 import cors from "cors";
 import express from "express";
@@ -15,5 +15,6 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/dcs', dcRoutes);
 
 export default app;

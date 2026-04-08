@@ -85,3 +85,12 @@ export interface AddUserClientPayload {
     client: Client;
     user: User;
 }
+
+
+//DC
+
+export interface CreateOrUpdateDc {
+    name: string;
+    client_id: Client['id'];
+    client: Client;
+}

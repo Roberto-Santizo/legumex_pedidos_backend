@@ -1,5 +1,5 @@
 import { UpdateResult } from "typeorm";
-import { Client, User, UserClient } from "../../entities/entities";
+import { Client } from "../../entities/entities";
 
 export abstract class ClientDatasource {
     abstract createClient(name: string): Promise<Client>;
