@@ -94,4 +94,5 @@ export interface CreateOrUpdateDc {
     name: string;
     client_id: Client['id'];
     client: Client;
+    code: string;
 }
