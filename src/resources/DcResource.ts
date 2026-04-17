@@ -5,7 +5,8 @@ export class DcResource {
         return {
             id: dc.id,
             name: dc.name,
-            client: dc.client.name
+            client: dc.client.name,
+            code: dc.code
         }
     }
 
