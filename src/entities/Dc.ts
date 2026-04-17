@@ -9,6 +9,9 @@ export class Dc {
     @Column()
     name: string;
 
+    @Column({default: '000'})
+    code: string;
+
     @ManyToOne(() => Client, client => client.dcs)
     @JoinColumn({ name: 'client_id' })
     client: Client;

@@ -17,6 +17,10 @@ export class OrderProductService {
         return this.repository.createProduct(payload);
     }
 
+    async createProducts(payload: OrderProductPayload[]) {
+        return this.repository.createProducts(payload);
+    }
+
     async getProductsByOrderId(id: Order['id']) {
         return this.repository.getProductsByOrderId(id);
     }

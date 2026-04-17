@@ -4,3 +4,4 @@ export class ConflictError extends DomainError { }
 export class NotAuthorizedError extends DomainError { }
 export class NotFoundError extends DomainError {}
 export class WrongCredentials extends DomainError {}
+export class BadRequestError extends DomainError {}

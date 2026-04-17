@@ -11,7 +11,9 @@
   "description": "",
   "dependencies": {
     "@azure/identity": "^4.13.1",
+    "@google/genai": "^1.49.0",
     "@microsoft/microsoft-graph-client": "^3.0.7",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@types/nodemailer": "^6.4.23",
     "bcrypt": "^6.0.0",
     "colors": "^1.4.0",
@@ -22,15 +24,18 @@
     "express-validator": "^7.3.1",
     "jsonwebtoken": "^9.0.3",
     "mailtrap": "^4.5.1",
+    "multer": "^2.1.1",
     "nodemailer": "^7.0.13",
     "pg": "^8.20.0",
-    "typeorm": "^0.3.28"
+    "typeorm": "^0.3.28",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.1.0",
     "@types/node": "^25.5.0",
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",

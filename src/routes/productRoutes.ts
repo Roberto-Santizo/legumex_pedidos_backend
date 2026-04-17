@@ -1,9 +1,11 @@
 import { authenticated } from "../middlewares/authentication";
 import { body, param, query } from "express-validator";
-import { isAdministrativeUser } from "../middlewares/roles";
+import { isAdmin, isAdministrativeUser } from "../middlewares/roles";
 import { ProductController } from "../controllers/ProductController";
 import { returnValidationErrors } from "../middlewares/validation";
 import { Router } from "express";
+import { upload } from "../config/multerConfig";
+import { fileExists } from "../middlewares/orders";
 
 const router = Router();
 
@@ -59,6 +61,11 @@ router.patch('/:id',
     ProductController.update
 );
 
-
+router.post('/uploadProducts',
+    isAdministrativeUser,
+    upload.single('file'),
+    fileExists,
+    ProductController.uploadProducts
+);
 
 export default router;

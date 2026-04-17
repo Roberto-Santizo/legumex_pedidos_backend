@@ -131,4 +131,14 @@ export abstract class OrderController {
             errorHandler(error, res);
         }
     }
+
+    static async uploadFile(req: Request, res: Response) {
+        try {
+            await orderProvider.uploadFile(req.file, req.user);
+
+            responseHandler(res, 200, 'Archivo subido correctamente');
+        } catch (error) {
+            errorHandler(error, res);
+        }
+    }
 }

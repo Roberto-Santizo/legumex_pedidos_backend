@@ -31,7 +31,7 @@ export abstract class ProductController {
         try {
             const { limit, offset } = req.query;
             const [products, total] = await productProvider.getPaginatedProducts(req.query);
-            
+
             const response = {
                 response: ProductResource.collection(products),
                 total: total,
@@ -60,6 +60,16 @@ export abstract class ProductController {
             await productProvider.updateProductById(req.params.id, req.body);
 
             responseHandler(res, 200, 'Producto Actualizado Correctamente');
+        } catch (error) {
+            errorHandler(error, res);
+        }
+    }
+
+    static async uploadProducts(req: Request, res: Response) {
+        try {
+            await productProvider.uploadProducts(req.file);
+
+            responseHandler(res, 200, 'Productos Creados Correctamente');
         } catch (error) {
             errorHandler(error, res);
         }

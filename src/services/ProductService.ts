@@ -1,12 +1,13 @@
+import { BadRequestError, ConflictError, NotFoundError } from "../infrastructure/infrastructure";
+import { Client, Product } from "../entities/entities";
 import { clientProvider } from "../providers/clientRepositoryProvider";
-import { ConflictError, NotFoundError } from "../infrastructure/infrastructure";
 import { CreateOrUpdateProductPayload, ProductFilters } from "../interfaces/interfaces";
 import { FindManyOptions, Like } from "typeorm";
 import { getCurrentDate } from "../utils/date";
-import { Product } from "../entities/entities";
 import { productPriceBinnacleRepository } from "../providers/productPriceBinnacleRepositoryProvider";
 import { ProductRepository } from "../domain/domain";
 import { TransportOptions } from "../entities/Order";
+import ExcelJS from 'exceljs';
 
 export class ProductService {
     constructor(private repository: ProductRepository) { }
@@ -25,6 +26,29 @@ export class ProductService {
         } else {
             if (productByInternationalCode) throw new ConflictError("El código internacional ya existe");
             if (productByLocalCode) throw new ConflictError("El código local ya existe");
+        }
+    }
+
+
+    _formatRow(row: ExcelJS.Row, client: Client): CreateOrUpdateProductPayload {
+        return {
+            name: row.getCell(1).value as string,
+            localCode: row.getCell(2).value as string,
+            internationalCode: row.getCell(3).value as string,
+            presentation: +row.getCell(4).value,
+            price: +row.getCell(5).value,
+            units_per_box: +row.getCell(6).value,
+            boxes_per_pallet: +row.getCell(7).value,
+            dc: row.getCell(9).value as string,
+            transportType: row.getCell(10).value as TransportOptions,
+            client_id: client.id,
+            client: client,
+        }
+    }
+
+    _validateTransportType(type: TransportOptions) {
+        if (!Object.values(TransportOptions).includes(type)) {
+            throw new BadRequestError("El tipo de transporte no existe");
         }
     }
 
@@ -77,7 +101,7 @@ export class ProductService {
             options = { ...options, where: { ...options.where, transportType: transportType } }
         }
 
-        if(dc){
+        if (dc) {
             options = { ...options, where: { ...options.where, dc: dc } }
         }
 
@@ -113,5 +137,24 @@ export class ProductService {
         }
 
         return this.repository.getPaginatedProducts(options);
+    }
+
+    async uploadProducts(file: Express.Multer.File) {
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.load(file.buffer as any);
+        const worksheet = workbook.getWorksheet(1);
+        const clients = await clientProvider.getClients();
+
+        for (let i = 2; i <= worksheet.rowCount; i++) {
+            const row = worksheet.getRow(i);
+
+            const client = clients.find(client => client.name === row.getCell(8).value);
+
+            if (!client) throw new NotFoundError("El cliente no existe");
+
+            this._validateTransportType(row.getCell(10).value as TransportOptions);
+
+            await this.createProduct(this._formatRow(row, client));
+        }
     }
 }

@@ -1,10 +1,11 @@
 import { authenticated } from "../middlewares/authentication";
 import { body, param, query } from "express-validator";
-import { isOrderOwner } from "../middlewares/orders";
+import { fileExists, isOrderOwner } from "../middlewares/orders";
 import { OrderController } from "../controllers/OrderController";
 import { returnValidationErrors } from "../middlewares/validation";
 import { Router } from "express";
 import { isAdministrativeUser } from "../middlewares/roles";
+import { upload } from "../config/multerConfig";
 
 const router = Router();
 
@@ -94,6 +95,12 @@ router.delete('/deleteItem/:id/:itemId',
     param('id').notEmpty().withMessage('El ID es requerido').isNumeric().withMessage('El ID debe de ser un dato númerico'),
     returnValidationErrors,
     OrderController.deleteItem
+);
+
+router.post('/uploadFile',
+    upload.single('file'),
+    fileExists,
+    OrderController.uploadFile
 );
 
 export default router;

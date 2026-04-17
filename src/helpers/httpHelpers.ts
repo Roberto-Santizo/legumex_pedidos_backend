@@ -1,4 +1,4 @@
-import { ConflictError, NotAuthorizedError, NotFoundError, WrongCredentials } from "../infrastructure/errors/errors";
+import { BadRequestError, ConflictError, NotAuthorizedError, NotFoundError, WrongCredentials } from "../infrastructure/errors/errors";
 import { Response } from "express";
 
 export function errorHandler(err: Error, res: Response) {
@@ -26,6 +26,13 @@ export function errorHandler(err: Error, res: Response) {
     if (err instanceof NotAuthorizedError) {
         return res.status(401).json({
             statusCode: 401,
+            message: err.message
+        });
+    }
+
+    if (err instanceof BadRequestError) {
+        return res.status(400).json({
+            statusCode: 400,
             message: err.message
         });
     }
