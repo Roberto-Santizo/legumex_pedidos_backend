@@ -23,6 +23,7 @@ export class OrderMapper {
 
     static async getTransportType(dc: string, products: Product[], firstProductCode: string): Promise<TransportOptions> {
         const transportType  = products.filter((product) => (product.internationalCode == firstProductCode))[0].transportType;
+        if(transportType == null) throw new NotFoundError(`No se pudo determinar el tipo de transporte de la orden ${firstProductCode}`);
         return transportType;
     }
 
