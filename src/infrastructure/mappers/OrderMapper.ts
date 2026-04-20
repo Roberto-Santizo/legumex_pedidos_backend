@@ -21,8 +21,9 @@ export class OrderMapper {
         }
     }
 
-    static async getTransportType(dc: string, products: Product[]): Promise<TransportOptions> {
-        return products[0].transportType;
+    static async getTransportType(dc: string, products: Product[], firstProductCode: string): Promise<TransportOptions> {
+        const transportType  = products.filter((product) => (product.internationalCode == firstProductCode))[0].transportType;
+        return transportType;
     }
 
     static async productsMapper(orderProducts: z.infer<typeof ProductSchema>[], products: Product[], order: Order): Promise<OrderProductPayload[]> {

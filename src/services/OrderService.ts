@@ -1,10 +1,9 @@
+import { BadRequestError, ConflictError, NotFoundError } from "../infrastructure/infrastructure";
 import { Between, FindManyOptions, FindOptionsWhere } from "typeorm";
 import { clientProvider } from "../providers/clientRepositoryProvider";
-import { BadRequestError, ConflictError, NotFoundError } from "../infrastructure/infrastructure";
 import { CreateOrderPayload } from "../interfaces/interfaces";
 import { dcProvider } from "../providers/dcRepositoryProvider";
 import { emailService } from '../providers/emailProvider';
-import { getCurrentDate } from "../utils/date";
 import { IAProvider } from "../domain/providers/IAProvider";
 import { Order, User } from "../entities/entities";
 import { OrderMapper } from "../infrastructure/mappers/OrderMapper";
@@ -12,8 +11,8 @@ import { orderProductProvider } from "../providers/orderProductRepositoryProvide
 import { OrderRepository } from "../domain/domain";
 import { OrderResource } from "../resources/OrderResource";
 import { OrderSchema, OrdersIAResponseSchema } from "../domain/schemas/schemas";
-import { TransportOptions } from "../entities/Order";
 import { productProvider } from "../providers/productRepositoryProvider";
+import { TransportOptions } from "../entities/Order";
 import z from "zod";
 
 export class OrderService {
@@ -31,7 +30,7 @@ export class OrderService {
 
         const products = await productProvider.getProducts(null, null, data.dc.name);
 
-        const transportType = await OrderMapper.getTransportType(data.dc.name, products);
+        const transportType = await OrderMapper.getTransportType(data.dc.name, products, data.products[0].code);
         const order = OrderMapper.formatOrder(data);
         order.transportType = transportType;
         const newOrder = await this.createOrder(user, order);
