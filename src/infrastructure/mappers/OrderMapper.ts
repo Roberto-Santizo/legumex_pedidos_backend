@@ -22,9 +22,9 @@ export class OrderMapper {
     }
 
     static async getTransportType(dc: string, products: Product[], firstProductCode: string): Promise<TransportOptions> {
-        const transportType  = products.filter((product) => (product.internationalCode == firstProductCode))[0].transportType;
-        if(transportType == null) throw new NotFoundError(`No se pudo determinar el tipo de transporte de la orden ${firstProductCode}`);
-        return transportType;
+        const product = products.filter((product) => (product.internationalCode == firstProductCode))[0];
+        if (!product) throw new NotFoundError(`No se pudo determinar el tipo de transporte de la orden ${firstProductCode}`);
+        return product.transportType;
     }
 
     static async productsMapper(orderProducts: z.infer<typeof ProductSchema>[], products: Product[], order: Order): Promise<OrderProductPayload[]> {
@@ -43,7 +43,7 @@ export class OrderMapper {
 
             formattedProducts.push(newItem);
         }
-        
+
         return formattedProducts;
     }
 }
