@@ -134,9 +134,9 @@ export abstract class OrderController {
 
     static async uploadFile(req: Request, res: Response) {
         try {
-            await orderProvider.uploadFile(req.file, req.user);
+            const results = await orderProvider.uploadFile(req.file, req.user);
 
-            responseHandler(res, 200, 'Archivo subido correctamente');
+            responseHandler(res, 200, 'Archivo subido correctamente', results);
         } catch (error) {
             errorHandler(error, res);
         }

@@ -1,19 +1,20 @@
-import { CreateOrderPayload, OrderProductPayload } from "../../interfaces/interfaces";
+import { CreateOrderPayload, OrderMapperResult, OrderProductPayload } from "../../interfaces/interfaces";
 import { getCurrentDate } from "../../utils/date";
-import { OrderSchema, ProductSchema } from "../../domain/schemas/schemas";
-import { Product } from "../../entities/entities";
-import { Order, TransportOptions } from "../../entities/Order";
-import z from "zod";
 import { NotFoundError } from "../infrastructure";
+import { Order, TransportOptions } from "../../entities/Order";
+import { OrderSchema, ProductSchema } from "../../domain/schemas/schemas";
+import { Dc, Product } from "../../entities/entities";
+import z from "zod";
 
 export class OrderMapper {
-    static formatOrder(order: z.infer<typeof OrderSchema>): CreateOrderPayload {
+    static formatOrder(order: z.infer<typeof OrderSchema>, transportType: TransportOptions, dc: Dc): CreateOrderPayload {
         return {
             client_id: order.client.id,
             client: null,
-            dc: order.dc.name,
+            dc: dc,
+            dc_id: dc.id,
             po: order.po,
-            transportType: TransportOptions.COLLECT,
+            transportType: transportType,
             date: getCurrentDate(),
             createdAt: getCurrentDate(),
             requiredByDate: getCurrentDate(),
@@ -21,10 +22,9 @@ export class OrderMapper {
         }
     }
 
-    static async getTransportType(dc: string, products: Product[], firstProductCode: string): Promise<TransportOptions> {
+    static async getTransportType(products: Product[], firstProductCode: string): Promise<Product> {
         const product = products.filter((product) => (product.internationalCode == firstProductCode))[0];
-        if (!product) throw new NotFoundError(`No se pudo determinar el tipo de transporte de la orden ${firstProductCode}`);
-        return product.transportType;
+        return product;
     }
 
     static async productsMapper(orderProducts: z.infer<typeof ProductSchema>[], products: Product[], order: Order): Promise<OrderProductPayload[]> {
@@ -45,5 +45,18 @@ export class OrderMapper {
         }
 
         return formattedProducts;
+    }
+
+    static async validateProducts(orderProducts: z.infer<typeof ProductSchema>[], products: Product[]){
+        const errors: OrderMapperResult[] = [];
+
+        for (const item of orderProducts){
+            const product = products.find((product) => (product.internationalCode == item.code));
+            if(!product){
+                errors.push({ success: false, message: `El producto con código ${item.code} no existe` });
+            }
+        }
+
+        return errors;
     }
 }

@@ -1,16 +1,16 @@
 import { BadRequestError, ConflictError, NotFoundError } from "../infrastructure/infrastructure";
 import { Between, FindManyOptions, FindOptionsWhere } from "typeorm";
 import { clientProvider } from "../providers/clientRepositoryProvider";
-import { CreateOrderPayload } from "../interfaces/interfaces";
+import { CreateOrderPayload, OrderMapperResult } from "../interfaces/interfaces";
 import { dcProvider } from "../providers/dcRepositoryProvider";
 import { emailService } from '../providers/emailProvider';
 import { IAProvider } from "../domain/providers/IAProvider";
-import { Order, User } from "../entities/entities";
+import { Order, Product, User } from "../entities/entities";
 import { OrderMapper } from "../infrastructure/mappers/OrderMapper";
 import { orderProductProvider } from "../providers/orderProductRepositoryProvider";
 import { OrderRepository } from "../domain/domain";
 import { OrderResource } from "../resources/OrderResource";
-import { OrderSchema, OrdersIAResponseSchema } from "../domain/schemas/schemas";
+import { OrderSchema, OrdersIAResponseSchema, ProductSchema } from "../domain/schemas/schemas";
 import { productProvider } from "../providers/productRepositoryProvider";
 import { TransportOptions } from "../entities/Order";
 import z from "zod";
@@ -24,27 +24,61 @@ export class OrderService {
         }
     }
 
-    async _processOrderInformation(data: z.infer<typeof OrderSchema>, user: User) {
-        if (data.dc == null) throw new BadRequestError('No sé pudo determinar el dc')
-        if (data.client == null) throw new BadRequestError('No sé pudo determinar el cliente')
+    async _validateOrderProducts(orderProducts: z.infer<typeof ProductSchema>[], products: Product[]): Promise<OrderMapperResult[]> {
+        return await OrderMapper.validateProducts(orderProducts, products);
+    }
 
-        const products = await productProvider.getProducts(null, null, data.dc.name);
+    async _validateOrderInformation(data: z.infer<typeof OrderSchema>, products: Product[]) {
+        if (products.length == 0) {
+            throw new BadRequestError(`No se encontraron productos para el DC ${data.dc.name}`);
+        }
 
-        const transportType = await OrderMapper.getTransportType(data.dc.name, products, data.products[0].code);
-        const order = OrderMapper.formatOrder(data);
-        order.transportType = transportType;
-        const newOrder = await this.createOrder(user, order);
+        const firstProduct = await OrderMapper.getTransportType(products, data.products[0].code);
 
-        const formattedProducts = await OrderMapper.productsMapper(data.products, products, newOrder);
-        await orderProductProvider.createProducts(formattedProducts);
+        if (!firstProduct) {
+            throw new BadRequestError(`No se pudo determinar el tipo de transporte para la orden con PO ${data.po}`);
+        }
+
+        return firstProduct.transportType;
+    }
+
+    async _processOrderInformation(data: z.infer<typeof OrderSchema>, user: User): Promise<OrderMapperResult> {
+        try {
+            const products = await productProvider.getProducts(null, null, data.dc.id);
+            const dc = await dcProvider.getDcById(data.dc.id);
+            const client = await clientProvider.getClientById(data.client.id);
+
+            if (!dc) throw new NotFoundError(`El DC de la PO ${data.po} no existe`);
+            if (!client) throw new NotFoundError(`El cliente de la PO ${data.po} no existe`);
+
+            const errors = await this._validateOrderProducts(data.products, products);
+
+            if (errors.length > 0) {
+                return { success: false, message: `La orden con PO ${data.po} tiene productos no válidos: ${errors.map(e => e.message).join(', ')}` }
+            }
+
+            const transportType = await this._validateOrderInformation(data, products);
+
+            const order = OrderMapper.formatOrder(data, transportType, dc);
+            const newOrder = await this.createOrder(user, order);
+            const orderProducts = await OrderMapper.productsMapper(data.products, products, newOrder);
+            await orderProductProvider.createProducts(orderProducts);
+
+            return { success: true, message: `Orden con PO ${data.po} procesada correctamente` }
+        } catch (error) {
+            return { success: false, message: `${error.message}` }
+        }
     }
 
     async createOrder(user: User, payload: CreateOrderPayload) {
         this._validateTransportType(payload.transportType);
         const client = await clientProvider.getClientById(payload.client_id);
+        const dc = await dcProvider.getDcById(payload.dc_id);
 
         payload.user = user;
         payload.client = client;
+        payload.dc = dc;
+        payload.date = new Date().toISOString();
 
         return this.repository.createOrder(payload);
     }
@@ -109,10 +143,18 @@ export class OrderService {
         const text = await this.ia.uploadFile(file, dcs, clients);
         const { data } = OrdersIAResponseSchema.safeParse(text);
 
+        const results: OrderMapperResult[] = [];
+
         for (const order of data) {
-            await this._processOrderInformation(order, user);
+            const result = await this._processOrderInformation(order, user);
+            results.push(result);
         }
 
-        return true;
+        return {
+            total: results.length,
+            success: results.filter(r => r.success).length,
+            failed: results.filter(r => !r.success).length,
+            results
+        };
     }
 }

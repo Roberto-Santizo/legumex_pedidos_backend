@@ -15,7 +15,7 @@ export class ProductResource {
             boxes_per_pallet: product.boxes_per_pallet,
             prices: product.prices,
             transportType: product.transportType,
-            dc: product.dc,
+            dc: product.dc.name,
         }
     }
 

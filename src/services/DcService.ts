@@ -23,4 +23,9 @@ export class DcService {
 
         return this.repository.getDcs(options);
     }
+
+    async getDcById(id: Dc['id']) {
+        const dc = await this.repository.getDcById(id);
+        return dc;
+    }
 }

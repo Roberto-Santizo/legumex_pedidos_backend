@@ -1,6 +1,6 @@
 import { FindManyOptions, UpdateResult } from "typeorm";
 import { Product } from "../../entities/entities";
-import { CreateOrUpdateProductPayload, ProductFilters } from "../../interfaces/interfaces";
+import { CreateOrUpdateProductPayload } from "../../interfaces/interfaces";
 
 export abstract class ProductDatasource {
     abstract createProduct(payload: CreateOrUpdateProductPayload): Promise<Product>;

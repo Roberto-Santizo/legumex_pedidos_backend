@@ -1,4 +1,4 @@
-import { Order, Product, User, Client } from "../entities/entities";
+import { Order, Product, User, Client, Dc } from "../entities/entities";
 import { TransportOptions } from "../entities/Order";
 
 //LOGIN FORM
@@ -28,7 +28,7 @@ export interface CreateOrUpdateProductPayload {
     units_per_box: number;
     boxes_per_pallet: number;
     client: Client;
-    dc: string;
+    dc: Dc;
     transportType: TransportOptions;
 }
 
@@ -41,12 +41,12 @@ export interface UpdateProductPricePayload {
 
 export interface ProductFilters {
     limit: number;
-    offset: number; 
-    client: string; 
+    offset: number;
+    client: string;
     internationalCode: string;
-    localCode: string; 
+    localCode: string;
     name: string;
-    dc: string;
+    dc: Dc['id'];
 }
 
 
@@ -64,7 +64,8 @@ export interface CreateOrderProductPayload {
 
 export interface CreateOrderPayload {
     date: string;
-    dc: string;
+    dc_id: Dc['id'];
+    dc: Dc;
     user: User;
     client_id: number;
     client: Client;
@@ -89,10 +90,15 @@ export interface AddUserClientPayload {
 
 
 //DC
-
 export interface CreateOrUpdateDc {
     name: string;
     client_id: Client['id'];
     client: Client;
     code: string;
+}
+
+//ERRORS
+export interface OrderMapperResult {
+    success: boolean;
+    message: string;
 }

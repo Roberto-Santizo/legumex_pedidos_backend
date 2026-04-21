@@ -34,7 +34,7 @@ export class OrderDatasourceImpl implements OrderDatasource {
     }
 
     createOrder(payload: CreateOrderPayload): Promise<Order> {
-        const { client_id, ...data } = payload;
+        const { client_id, dc_id, ...data } = payload;
         return this.repo.save(data);
     }
 }

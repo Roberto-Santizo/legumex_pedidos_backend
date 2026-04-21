@@ -15,9 +15,6 @@ export class ClientService {
 
     async getClientById(id: Client['id']) {
         const client = await this.repository.getClientById(id);
-
-        if (!client) throw new NotFoundError("El cliente no existe");
-
         return client;
     }
 

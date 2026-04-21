@@ -1,5 +1,5 @@
 import { BadRequestError, ConflictError, NotFoundError } from "../infrastructure/infrastructure";
-import { Client, Product } from "../entities/entities";
+import { Client, Dc, Product } from "../entities/entities";
 import { clientProvider } from "../providers/clientRepositoryProvider";
 import { CreateOrUpdateProductPayload, ProductFilters } from "../interfaces/interfaces";
 import { FindManyOptions, Like } from "typeorm";
@@ -8,6 +8,7 @@ import { productPriceBinnacleRepository } from "../providers/productPriceBinnacl
 import { ProductRepository } from "../domain/domain";
 import { TransportOptions } from "../entities/Order";
 import ExcelJS from 'exceljs';
+import { dcProvider } from "../providers/dcRepositoryProvider";
 
 export class ProductService {
     constructor(private repository: ProductRepository) { }
@@ -30,7 +31,7 @@ export class ProductService {
     }
 
 
-    _formatRow(row: ExcelJS.Row, client: Client): CreateOrUpdateProductPayload {
+    _formatRow(row: ExcelJS.Row, client: Client, dc: Dc): CreateOrUpdateProductPayload {
         return {
             name: row.getCell(1).value as string,
             localCode: row.getCell(2).value as string,
@@ -39,7 +40,7 @@ export class ProductService {
             price: +row.getCell(5).value,
             units_per_box: +row.getCell(6).value,
             boxes_per_pallet: +row.getCell(7).value,
-            dc: row.getCell(9).value as string,
+            dc: dc,
             transportType: row.getCell(10).value as TransportOptions,
             client_id: client.id,
             client: client,
@@ -90,7 +91,7 @@ export class ProductService {
         return this.repository.updateProductById(product.id, payload);
     }
 
-    async getProducts(client?: number, transportType?: TransportOptions, dc?: string) {
+    async getProducts(client?: number, transportType?: TransportOptions, dc?: Dc['id']) {
         let options: FindManyOptions<Product> = { relations: ['client'] };
 
         if (client) {
@@ -102,7 +103,7 @@ export class ProductService {
         }
 
         if (dc) {
-            options = { ...options, where: { ...options.where, dc: dc } }
+            options = { ...options, where: { ...options.where, dc: { id: dc } } }
         }
 
         return this.repository.getProducts(options);
@@ -113,7 +114,7 @@ export class ProductService {
             order: { id: 'ASC' },
             take: filters.limit,
             skip: (filters.offset - 1) * filters.limit,
-            relations: ['client']
+            relations: ['client', 'dc']
         }
 
         if (filters.client) {
@@ -133,7 +134,7 @@ export class ProductService {
         }
 
         if (filters.dc) {
-            options = { ...options, where: { ...options.where, dc: Like(`%${filters.dc}%`) } }
+            options = { ...options, where: { ...options.where, dc: { id: filters.dc } } }
         }
 
         return this.repository.getPaginatedProducts(options);
@@ -144,17 +145,20 @@ export class ProductService {
         await workbook.xlsx.load(file.buffer as any);
         const worksheet = workbook.getWorksheet(1);
         const clients = await clientProvider.getClients();
+        const dcs = await dcProvider.getDcs();
 
         for (let i = 2; i <= worksheet.rowCount; i++) {
             const row = worksheet.getRow(i);
 
             const client = clients.find(client => client.name === row.getCell(8).value);
+            const dc = dcs.find(dc => dc.code === row.getCell(9).value.toString());
 
             if (!client) throw new NotFoundError("El cliente no existe");
+            if (!dc) throw new NotFoundError("El DC no existe");
 
             this._validateTransportType(row.getCell(10).value as TransportOptions);
 
-            await this.createProduct(this._formatRow(row, client));
+            await this.createProduct(this._formatRow(row, client, dc));
         }
     }
 }

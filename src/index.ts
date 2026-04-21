@@ -11,4 +11,6 @@ server.listen(port, host, () => {
 
 appDatasource.initialize().then(async () => {
     console.log(colors.green.bold("Data Source has been initialized"));
-}).catch((e) => console.log(colors.red.bold(`Error during Data Source initialization: ${e}`)));
+}).catch((e) => {
+    console.error("Full error:", e);
+});

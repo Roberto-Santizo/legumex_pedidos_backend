@@ -7,7 +7,8 @@ export class OrderResource {
             status: order.status,
             customer: order.user.name + ' ' + order.user.lastName,
             email: order.user.email,
-            dc: order.dc,
+            dc_id: order.dc.id,
+            dc: order.dc.name,
             po: order.po,
             client: order.client.name,
             client_id: order.client.id,
@@ -68,7 +69,7 @@ export class OrderResource {
             transportType: order.transportType,
             requiredByDate: order.requiredByDate,
             confirmedBy: order.confirmedBy != null ? order.confirmedBy.name : null,
-            dc: order.dc
+            dc: order.dc.name
         }
     }
 

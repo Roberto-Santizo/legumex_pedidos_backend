@@ -10,6 +10,9 @@ export class DcDatasourceImpl implements DcDatasource {
     constructor() {
         this.repo = appDatasource.getRepository(Dc);
     }
+    getDcById(id: Dc['id']): Promise<Dc> {
+        return this.repo.findOneBy({ id });
+    }
 
     getDcs(options: FindManyOptions<Dc>): Promise<Dc[]> {
         return this.repo.find(options);

@@ -6,6 +6,9 @@ import { CreateOrUpdateDc } from '../../interfaces/interfaces';
 
 export class DcRepositoryImpl implements DcRepository {
     constructor(private datasource: DcDatasource) { }
+    getDcById(id: Dc['id']): Promise<Dc> {
+        return this.datasource.getDcById(id);
+    }
 
     getDcs(options: FindManyOptions<Dc>): Promise<Dc[]> {
         return this.datasource.getDcs(options);

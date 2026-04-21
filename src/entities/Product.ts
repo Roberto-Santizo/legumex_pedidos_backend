@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Client, OrderProduct } from "./entities";
+import { Client, Dc, OrderProduct } from "./entities";
 import { ProductPriceBinnacle } from "./ProductPriceBinnacle";
 import { TransportOptions } from "./Order";
 
@@ -16,9 +16,6 @@ export class Product {
 
     @Column()
     internationalCode: string;
-
-    @Column()
-    dc: string;
 
     @Column('enum', { enum: TransportOptions, default: TransportOptions.CROSSDOCK })
     transportType: TransportOptions;
@@ -37,6 +34,10 @@ export class Product {
 
     @CreateDateColumn()
     createdAt: Date;
+
+    @ManyToOne(() => Dc, dc => dc.products)
+    @JoinColumn({ name: 'dc_id' })
+    dc: Dc;
 
     @OneToMany(() => OrderProduct, order => order.product)
     orders: OrderProduct[];

@@ -19,7 +19,7 @@ export abstract class ProductController {
     static async index(req: Request, res: Response) {
         try {
             const { client, transportType, dc } = req.query;
-            const products = await productProvider.getProducts(+client, transportType as TransportOptions, dc as string);
+            const products = await productProvider.getProducts(+client, transportType as TransportOptions, +dc);
 
             responseHandler(res, 200, 'Productos Obtenidos Correctamente', ProductResource.collection(products));
         } catch (error) {
