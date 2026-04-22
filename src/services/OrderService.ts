@@ -1,11 +1,11 @@
-import { BadRequestError, ConflictError, NotFoundError } from "../infrastructure/infrastructure";
-import { Between, FindManyOptions, FindOptionsWhere } from "typeorm";
+import { Between, FindManyOptions, FindOptionsWhere, In } from "typeorm";
+import { Client, Dc, Order, Product, User } from "../entities/entities";
 import { clientProvider } from "../providers/clientRepositoryProvider";
+import { ConflictError, NotFoundError } from "../infrastructure/infrastructure";
 import { CreateOrderPayload, OrderMapperResult } from "../interfaces/interfaces";
 import { dcProvider } from "../providers/dcRepositoryProvider";
 import { emailService } from '../providers/emailProvider';
 import { IAProvider } from "../domain/providers/IAProvider";
-import { Order, Product, User } from "../entities/entities";
 import { OrderMapper } from "../infrastructure/mappers/OrderMapper";
 import { orderProductProvider } from "../providers/orderProductRepositoryProvider";
 import { OrderRepository } from "../domain/domain";
@@ -24,45 +24,48 @@ export class OrderService {
         }
     }
 
-    async _validateOrderProducts(orderProducts: z.infer<typeof ProductSchema>[], products: Product[]): Promise<OrderMapperResult[]> {
-        return await OrderMapper.validateProducts(orderProducts, products);
+    async _validateOrderProducts(order: z.infer<typeof OrderSchema>, products: Product[]): Promise<OrderMapperResult> {
+        const productErrors = await OrderMapper.validateProducts(order.products, products);
+        if (productErrors.length > 0) return { success: false, message: `La orden con PO ${order.po} tiene productos no válidos: ${productErrors.map(e => e.message).join(', ')}` }
     }
 
-    async _validateOrderInformation(data: z.infer<typeof OrderSchema>, products: Product[]) {
-        if (products.length == 0) {
-            throw new BadRequestError(`No se encontraron productos para el DC ${data.dc.name}`);
-        }
-
+    async _validateOrderInformation(data: z.infer<typeof OrderSchema>, products: Product[], dc: Dc, client: Client): Promise<TransportOptions | OrderMapperResult> {
         const firstProduct = await OrderMapper.getTransportType(products, data.products[0].code);
 
-        if (!firstProduct) {
-            throw new BadRequestError(`No se pudo determinar el tipo de transporte para la orden con PO ${data.po}`);
-        }
+        if (products.length == 0) return { success: false, message: `No se encontraron productos válidos para la orden con PO ${data.po}` }
+        if (!firstProduct) return { success: false, message: `No se pudo determinar el tipo de transporte para la orden con PO ${data.po}` }
+        if (!dc) return { success: false, message: `El DC ${dc.name} no pudo ser encontrado` }
+        if (!client) return { success: false, message: `El cliente ${data.client.name} no pudo ser encontrado` }
 
         return firstProduct.transportType;
     }
 
-    async _processOrderInformation(data: z.infer<typeof OrderSchema>, user: User): Promise<OrderMapperResult> {
+    async _createOrder(data: z.infer<typeof OrderSchema>, user: User, transportType: TransportOptions, dc: Dc): Promise<Order> {
+        const order = OrderMapper.formatOrder(data, transportType, dc);
+        const newOrder = await this.createOrder(user, order);
+        return newOrder;
+    }
+
+    async _addProductsToOrder(data: z.infer<typeof OrderSchema>, order: Order, products: Product[]) {
+        const orderProducts = await OrderMapper.productsMapper(data.products, products, order);
+        await orderProductProvider.createProducts(orderProducts);
+    }
+
+    async _processOrderInformation(data: z.infer<typeof OrderSchema>, user: User, clients: Client[], dcs: Dc[], products: Product[]): Promise<OrderMapperResult> {
         try {
-            const products = await productProvider.getProducts(null, null, data.dc.id);
-            const dc = await dcProvider.getDcById(data.dc.id);
-            const client = await clientProvider.getClientById(data.client.id);
+            const dc = dcs.filter((dc) => dc.id === data.dc.id)[0];
+            const client = clients.filter((client) => client.id === data.client.id)[0];
+            const filterdProducts = products.filter((product) => product.dc.id === data.dc.id);
+            await this._validateOrderProducts(data, products);
 
-            if (!dc) throw new NotFoundError(`El DC de la PO ${data.po} no existe`);
-            if (!client) throw new NotFoundError(`El cliente de la PO ${data.po} no existe`);
+            const validationOrder = await this._validateOrderInformation(data, filterdProducts, dc, client);
 
-            const errors = await this._validateOrderProducts(data.products, products);
-
-            if (errors.length > 0) {
-                return { success: false, message: `La orden con PO ${data.po} tiene productos no válidos: ${errors.map(e => e.message).join(', ')}` }
+            if (typeof validationOrder === 'object') {
+                return validationOrder;
             }
 
-            const transportType = await this._validateOrderInformation(data, products);
-
-            const order = OrderMapper.formatOrder(data, transportType, dc);
-            const newOrder = await this.createOrder(user, order);
-            const orderProducts = await OrderMapper.productsMapper(data.products, products, newOrder);
-            await orderProductProvider.createProducts(orderProducts);
+            const newOrder = await this._createOrder(data, user, validationOrder, dc);
+            await this._addProductsToOrder(data, newOrder, filterdProducts);
 
             return { success: true, message: `Orden con PO ${data.po} procesada correctamente` }
         } catch (error) {
@@ -139,14 +142,20 @@ export class OrderService {
     async uploadFile(file: Express.Multer.File, user: User) {
         const dcs = await dcProvider.getDcs();
         const clients = await clientProvider.getClients();
-
         const text = await this.ia.uploadFile(file, dcs, clients);
         const { data } = OrdersIAResponseSchema.safeParse(text);
 
-        const results: OrderMapperResult[] = [];
+        const flatProductCodes = data.flatMap(order => order.products.map(product => product.code));
+        const flatDcs = data.flatMap(order => order.dc.id);
 
+        const uniqueProductCodes = [...new Set(flatProductCodes)];
+        const uniqueDcIds = [...new Set(flatDcs)];
+
+        const products = await productProvider.gerProductsByOptions({ relations: ['dc'], where: { internationalCode: In(uniqueProductCodes) } });
+
+        const results: OrderMapperResult[] = [];
         for (const order of data) {
-            const result = await this._processOrderInformation(order, user);
+            const result = await this._processOrderInformation(order, user, clients, dcs, products);
             results.push(result);
         }
 

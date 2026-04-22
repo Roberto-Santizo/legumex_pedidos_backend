@@ -17,7 +17,7 @@ export class OrderMapper {
             transportType: transportType,
             date: getCurrentDate(),
             createdAt: getCurrentDate(),
-            requiredByDate: getCurrentDate(),
+            requiredByDate: order.required_delivery_date ?? getCurrentDate(),
             user: null
         }
     }

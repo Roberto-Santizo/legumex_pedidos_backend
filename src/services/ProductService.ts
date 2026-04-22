@@ -2,13 +2,13 @@ import { BadRequestError, ConflictError, NotFoundError } from "../infrastructure
 import { Client, Dc, Product } from "../entities/entities";
 import { clientProvider } from "../providers/clientRepositoryProvider";
 import { CreateOrUpdateProductPayload, ProductFilters } from "../interfaces/interfaces";
+import { dcProvider } from "../providers/dcRepositoryProvider";
 import { FindManyOptions, Like } from "typeorm";
 import { getCurrentDate } from "../utils/date";
 import { productPriceBinnacleRepository } from "../providers/productPriceBinnacleRepositoryProvider";
 import { ProductRepository } from "../domain/domain";
 import { TransportOptions } from "../entities/Order";
 import ExcelJS from 'exceljs';
-import { dcProvider } from "../providers/dcRepositoryProvider";
 
 export class ProductService {
     constructor(private repository: ProductRepository) { }
@@ -92,7 +92,7 @@ export class ProductService {
     }
 
     async getProducts(client?: number, transportType?: TransportOptions, dc?: Dc['id']) {
-        let options: FindManyOptions<Product> = { relations: ['client'] };
+        let options: FindManyOptions<Product> = { relations: ['client', 'dc'] };
 
         if (client) {
             options = { ...options, where: { client: { id: client } } }
@@ -106,6 +106,10 @@ export class ProductService {
             options = { ...options, where: { ...options.where, dc: { id: dc } } }
         }
 
+        return this.repository.getProducts(options);
+    }
+
+    async gerProductsByOptions(options: FindManyOptions<Product>) {
         return this.repository.getProducts(options);
     }
 

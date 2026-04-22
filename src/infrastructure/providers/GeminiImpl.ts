@@ -17,7 +17,7 @@ export class GeminiImpl implements IAProvider {
         const optimizedDcs = dcs.map(dc => ({ id: dc.id, name: dc.name, code: dc.code, client: dc.client.name }));
 
         const response = await this.ai.models.generateContent({
-            model: "gemini-flash-lite-latest",
+            model: "gemini-3.1-flash-lite-preview",
             contents: [
                 createUserContent([
                     `
@@ -35,6 +35,7 @@ export class GeminiImpl implements IAProvider {
                                     } | null,
 
                                     "po": string,
+                                    "required_delivery_date": string,
                                     
                                     "products": [
                                         {
@@ -54,12 +55,13 @@ export class GeminiImpl implements IAProvider {
                             - "client": nombre del cliente
                             - "Ship To": dirección de entrega (usar esta SOLO para determinar el distribution center)
                             - "products": lista de productos con su código y cantidad
+                            - "required_delivery_date": es la fecha en la que el cliente requiere la entrega de los productos, extraerla en formato string (ej: "yyyy-mm-dd")
                             - "po": Purchase Order Number
 
                             2. Determinar el "dc" (distribution center):
                             - Usa la "shipping_address" como fuente principal para identificar el DC.
                             - Extrae tokens relevantes de la dirección (ciudad, estado, códigos, palabras clave).
-                            - Si la shipping address contiene un número que coincide con un DC code dentro del nombre (ej: DC 6055), prioriza ese match por encima de cualquier otro.
+                            - Si la shipping address contiene un número que coincide con un DC code dentro del nombre, prioriza ese match por encima de cualquier otro.
                             - Compara esos tokens contra:
                             a) el "code" del DC
                             b) el "name" del DC
@@ -68,7 +70,6 @@ export class GeminiImpl implements IAProvider {
                             Regla OBLIGATORIA para seleccionar el DC:
                             1. Primero filtra los DCs por el cliente extraído.
                             2. SOLO usa los DCs que pertenezcan a ese cliente.
-                            3. Luego realiza el matching con la shipping_address.
 
                             DISTRIBUTION CENTERS:
                             ${JSON.stringify(optimizedDcs)}

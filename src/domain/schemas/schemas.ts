@@ -11,6 +11,7 @@ export const OrderSchema = z.object({
         name: z.string()
     }).nullable(),
     po: z.string(),
+    required_delivery_date: z.string().nullable(),
     dc: z.object({
         id: z.number(),
         name: z.string(),
