@@ -144,12 +144,10 @@ export class OrderService {
         const clients = await clientProvider.getClients();
         const text = await this.ia.uploadFile(file, dcs, clients);
         const { data } = OrdersIAResponseSchema.safeParse(text);
-
+        
         const flatProductCodes = data.flatMap(order => order.products.map(product => product.code));
-        const flatDcs = data.flatMap(order => order.dc.id);
 
         const uniqueProductCodes = [...new Set(flatProductCodes)];
-        const uniqueDcIds = [...new Set(flatDcs)];
 
         const products = await productProvider.gerProductsByOptions({ relations: ['dc'], where: { internationalCode: In(uniqueProductCodes) } });
 

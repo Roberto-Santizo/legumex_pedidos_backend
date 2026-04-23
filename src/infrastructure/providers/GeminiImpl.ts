@@ -51,6 +51,7 @@ export class GeminiImpl implements IAProvider {
                             0. Hojas vacias:
                             - En tal caso se encuentre una hoja sin datos solamente ignorala y pasa a la siguiente
                             - En tal caso se encuentren dcs, clients o productos sin datos, ignoralos y no los incluyas en el resultado final
+                            - El código de producto esta generalmente en la columna "item" o una nomenclatura similar
 
                             1. Extrae:
                             - "client": nombre del cliente
