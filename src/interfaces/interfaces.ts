@@ -28,6 +28,7 @@ export interface CreateOrUpdateProductPayload {
     units_per_box: number;
     boxes_per_pallet: number;
     client: Client;
+    dc_id: Dc['id'];
     dc: Dc;
     transportType: TransportOptions;
 }

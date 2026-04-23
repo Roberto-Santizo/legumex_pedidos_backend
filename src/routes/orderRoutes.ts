@@ -13,7 +13,7 @@ router.use(authenticated);
 
 router.post('/',
     body('client_id').notEmpty().withMessage('El cliente es requerido').isNumeric().withMessage('El cliente debe de ser un dato númerico'),
-    body('dc').notEmpty().withMessage('El dc es requerido'),
+    body('dc_id').notEmpty().withMessage('El dc es requerido'),
     body('transportType').notEmpty().withMessage('El tipo de transporte es requerido'),
     body('requiredByDate').notEmpty().withMessage('La fecha de requerimiento es requerida'),
     body('po').notEmpty().withMessage('La PO de la orden es requerida'),

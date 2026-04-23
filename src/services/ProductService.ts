@@ -44,6 +44,7 @@ export class ProductService {
             transportType: row.getCell(10).value as TransportOptions,
             client_id: client.id,
             client: client,
+            dc_id: dc.id
         }
     }
 
@@ -80,8 +81,13 @@ export class ProductService {
 
     async updateProductById(id: Product['id'], payload: CreateOrUpdateProductPayload) {
         const product = await this.getProductById(id);
-        // await this._validateCodes(payload.localCode, payload.internationalCode, id);
         const client = await clientProvider.getClientById(payload.client_id);
+        const dc = await dcProvider.getDcById(payload.dc_id);
+
+        if (!dc) throw new NotFoundError("El DC no existe");
+        if (!client) throw new NotFoundError("El cliente no existe");
+        
+        payload.dc = dc;
         payload.client = client;
 
         if (product.price != payload.price) {

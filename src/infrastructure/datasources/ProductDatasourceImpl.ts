@@ -17,11 +17,11 @@ export class ProductDatasourceImpl implements ProductDatasource {
     }
 
     getProductById(id: Product['id']): Promise<Product> {
-        return this.repo.findOne({ where: { id }, relations: ['client', 'prices'] })
+        return this.repo.findOne({ where: { id }, relations: ['client', 'prices', 'dc'] })
     }
 
     updateProductById(id: Product['id'], payload: CreateOrUpdateProductPayload): Promise<UpdateResult> {
-        const { client_id, ...data } = payload;
+        const { client_id, dc_id, ...data } = payload;
         return this.repo.update({ id }, data);
     }
 
@@ -37,7 +37,7 @@ export class ProductDatasourceImpl implements ProductDatasource {
     }
 
     createProduct(payload: CreateOrUpdateProductPayload): Promise<Product> {
-        const { client_id, ...data } = payload;
+        const { client_id, dc_id, ...data } = payload;
         return this.repo.save(data);
     }
 

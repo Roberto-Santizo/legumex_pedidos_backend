@@ -16,6 +16,7 @@ export class ProductResource {
             prices: product.prices,
             transportType: product.transportType,
             dc: product.dc.name,
+            dc_id: product.dc.id,
         }
     }
 

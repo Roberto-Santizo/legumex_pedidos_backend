@@ -55,7 +55,7 @@ router.patch('/:id',
     body('units_per_box').notEmpty().withMessage('Las unidades por caja son requeridas').isNumeric().withMessage('Las unidades por caja debe de ser un dato númerico'),
     body('boxes_per_pallet').notEmpty().withMessage('Las cajas por pallet son requeridas').isNumeric().withMessage('Las cajas por pallet debe de ser un dato númerico'),
     body('client_id').notEmpty().withMessage('El cliente es requerido').isNumeric().withMessage('El cliente debe de ser un dato númerico'),
-    body('dc').notEmpty().withMessage('El código de distribución es requerido'),
+    body('dc_id').notEmpty().withMessage('El código de distribución es requerido'),
     body('transportType').notEmpty().withMessage('El tipo de transporte es requerido'),
     returnValidationErrors,
     ProductController.update

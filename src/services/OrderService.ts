@@ -144,7 +144,7 @@ export class OrderService {
         const clients = await clientProvider.getClients();
         const text = await this.ia.uploadFile(file, dcs, clients);
         const { data } = OrdersIAResponseSchema.safeParse(text);
-        
+
         const flatProductCodes = data.flatMap(order => order.products.map(product => product.code));
 
         const uniqueProductCodes = [...new Set(flatProductCodes)];
