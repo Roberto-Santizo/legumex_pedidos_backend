@@ -9,3 +9,6 @@ export { ProductPriceBinnacleDatasourceImpl } from "./datasources/ProductPriceBi
 export { ProductPriceBinnacleRepositoryImpl } from "./repositories/ProductPriceBinnacleRepositoryImpl";
 export { ProductRepositoryImpl } from "./repositories/ProductRepositoryImpl";
 export * from './errors/errors';
+// Containers module — Created by Luis
+export { ContainerDatasourceImpl } from "./datasources/ContainerDatasourceImpl";
+export { ContainerRepositoryImpl } from "./repositories/ContainerRepositoryImpl";

@@ -12,3 +12,6 @@ export { ProductPriceBinnacleRepository } from "./repositories/ProductPriceBinna
 export { ProductRepository } from "./repositories/ProductRepository";
 export { UserClientDatasource } from "./datasources/UserClientDatasource";
 export { UserClientRepository } from "./repositories/UserClientRepository";
+// Containers module — Created by Luis
+export { ContainerDatasource } from "./datasources/ContainerDatasource";
+export { ContainerRepository } from "./repositories/ContainerRepository";
