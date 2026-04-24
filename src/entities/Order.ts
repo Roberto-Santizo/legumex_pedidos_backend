@@ -40,8 +40,8 @@ export class Order {
     @Column('float', { nullable: true, default: 0 })
     total_pallets: number;
 
-    @Column()
-    requiredByDate: string;
+    @Column('timestamp')
+    requiredByDate: Date;
 
     @Column({ nullable: true })
     confirmationDate: string;

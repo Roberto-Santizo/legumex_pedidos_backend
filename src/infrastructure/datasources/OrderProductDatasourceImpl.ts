@@ -1,4 +1,4 @@
-import { DeleteResult, Repository, UpdateResult } from "typeorm";
+import { DeleteResult, FindManyOptions, Repository, UpdateResult } from "typeorm";
 import { InsertResult } from "typeorm/browser";
 import { Order, OrderProduct } from "../../entities/entities";
 import { OrderProductDatasource } from "../../domain/domain";
@@ -11,6 +11,10 @@ export class OrderProductDatasourceImpl implements OrderProductDatasource {
 
     constructor() {
         this.repo = appDatasource.getRepository(OrderProduct);
+    }
+
+    getItems(options: FindManyOptions<OrderProduct>): Promise<OrderProduct[]> {
+        return this.repo.find(options);
     }
 
     updateItemById(id: OrderProduct["id"], payload: OrderProductPayload): Promise<UpdateResult> {
@@ -27,7 +31,7 @@ export class OrderProductDatasourceImpl implements OrderProductDatasource {
     }
 
     getProductsByOrderId(id: Order["id"]): Promise<OrderProduct[]> {
-        return this.repo.find({ where: { order: { id } } });
+        return this.repo.find({ where: { order: { id } }, relations: ['product'] });
     }
 
     createProduct(payload: OrderProductPayload): Promise<OrderProduct> {

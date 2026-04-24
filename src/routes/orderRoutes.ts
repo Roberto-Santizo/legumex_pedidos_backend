@@ -103,4 +103,20 @@ router.post('/uploadFile',
     OrderController.uploadFile
 );
 
+router.post('/ordersHeadersReport',
+    isAdministrativeUser,
+    body('startDate').notEmpty().withMessage('La fecha de inicio es requerida'),
+    body('endDate').notEmpty().withMessage('La fecha de fin es requerida'),
+    returnValidationErrors,
+    OrderController.generateOrdersHeadersReport
+);
+
+router.post('/ordersItemsReport',
+    isAdministrativeUser,
+    body('startDate').notEmpty().withMessage('La fecha de inicio es requerida'),
+    body('endDate').notEmpty().withMessage('La fecha de fin es requerida'),
+    returnValidationErrors,
+    OrderController.generateOrdersItemsReport
+);
+
 export default router;

@@ -1,4 +1,4 @@
-import { DeleteResult } from "typeorm";
+import { DeleteResult, FindManyOptions } from "typeorm";
 import { Order, OrderProduct } from "../../entities/entities";
 import { OrderProductPayload } from "../../interfaces/interfaces";
 import { UpdateResult, InsertResult } from "typeorm/browser";
@@ -10,4 +10,5 @@ export abstract class OrderProductRepository {
     abstract getItemById(id: OrderProduct['id']): Promise<OrderProduct>;
     abstract updateItemById(id: OrderProduct['id'], payload: OrderProductPayload): Promise<UpdateResult>;
     abstract deleteItem(id: OrderProduct['id']): Promise<DeleteResult>;
+    abstract getItems(options: FindManyOptions<OrderProduct>): Promise<OrderProduct[]>;
 }

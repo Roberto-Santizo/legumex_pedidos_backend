@@ -7,8 +7,8 @@ export class ClientRepositoryImpl implements ClientRepository {
     constructor(private datasource: ClientDatasource) { }
 
 
-    createClient(name: string): Promise<Client> {
-        return this.datasource.createClient(name);
+    createClient(name: string, code: string): Promise<Client> {
+        return this.datasource.createClient(name, code);
     }
     getClients(): Promise<Client[]> {
         return this.datasource.getClients();

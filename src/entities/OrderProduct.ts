@@ -9,11 +9,11 @@ export class OrderProduct {
     @Column('int')
     total_boxes: number;
 
-    @ManyToOne(() => Product, (product) => product.orders, { eager: true, nullable: false })
+    @ManyToOne(() => Product, (product) => product.orders, { eager: false, nullable: false })
     @JoinColumn({ 'name': 'product_id' })
     product: Product;
 
-    @ManyToOne(() => Order, (order) => order, { nullable: false })
+    @ManyToOne(() => Order, (order) => order.products, { eager: false, nullable: false })
     @JoinColumn({ 'name': 'order_id' })
     order: Order
 

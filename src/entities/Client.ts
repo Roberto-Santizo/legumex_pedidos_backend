@@ -12,6 +12,9 @@ export class Client {
     @Column()
     name: string;
 
+    @Column({ unique: true, nullable: true })
+    code: string;
+
     @CreateDateColumn()
     createdAt: Date;
 

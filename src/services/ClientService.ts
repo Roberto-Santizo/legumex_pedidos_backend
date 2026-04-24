@@ -5,8 +5,8 @@ import { NotFoundError } from "../infrastructure/infrastructure";
 export class ClientService {
     constructor(private repository: ClientRepository) { }
 
-    async createClient(name: string) {
-        return this.repository.createClient(name);
+    async createClient(name: string, code: string) {
+        return this.repository.createClient(name, code);
     }
 
     async getClients() {

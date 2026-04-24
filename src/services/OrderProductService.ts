@@ -1,3 +1,4 @@
+import { FindManyOptions, In } from "typeorm";
 import { OrderProductRepository } from "../domain/domain";
 import { Order, OrderProduct } from "../entities/entities";
 import { NotFoundError } from "../infrastructure/infrastructure";
@@ -46,5 +47,10 @@ export class OrderProductService {
     async deleteOrderProductById(id: OrderProduct['id']) {
         await this.getItemById(id);
         return this.repository.deleteItem(id);
+    }
+
+    async getItems(ids: Order['id'][]) {
+        let options: FindManyOptions<OrderProduct> = { where: { order: { id: In(ids) } }, relations: ['product', 'order'], order: { order: { id: 'ASC' } } }
+        return this.repository.getItems(options);
     }
 }

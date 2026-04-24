@@ -6,9 +6,9 @@ import { userClientProvider } from "../providers/userClientRepositoryProvider";
 import { ClientResource } from "../resources/ClientResorce";
 
 export abstract class ClientController {
-    static async store(req: Request<{}, {}, { name: string }>, res: Response) {
+    static async store(req: Request<{}, {}, { name: string, code: string }>, res: Response) {
         try {
-            await clientProvider.createClient(req.body.name);
+            await clientProvider.createClient(req.body.name, req.body.code);
             responseHandler(res, 201, 'Cliente creado correctamente');
         } catch (error) {
             errorHandler(error, res);
@@ -23,7 +23,7 @@ export abstract class ClientController {
             errorHandler(error, res);
         }
     }
-    
+
     static async getUserClients(req: Request, res: Response) {
         try {
             const clients = await userClientProvider.getUserClients(req.user);
@@ -44,7 +44,7 @@ export abstract class ClientController {
 
     static async update(req: Request<{ id: Client['id'] }, {}, { name: string }>, res: Response) {
         try {
-            await clientProvider.updateClientById(req.params.id,  req.body.name);
+            await clientProvider.updateClientById(req.params.id, req.body.name);
             responseHandler(res, 201, 'Cliente actualizado correctamente');
         } catch (error) {
             errorHandler(error, res);

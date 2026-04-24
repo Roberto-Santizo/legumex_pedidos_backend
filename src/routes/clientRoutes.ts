@@ -11,7 +11,8 @@ router.use(authenticated);
 
 router.post('/',
     isAdmin,
-    body('name').notEmpty().withMessage('El nombre es requerido'),
+    body('name').notEmpty().withMessage('El nombre de cliente es requerido'),
+    body('code').notEmpty().withMessage('El código de cliente es requerido'),
     returnValidationErrors,
     ClientController.store
 );

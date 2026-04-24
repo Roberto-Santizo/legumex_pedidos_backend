@@ -141,4 +141,24 @@ export abstract class OrderController {
             errorHandler(error, res);
         }
     }
+
+    static async generateOrdersHeadersReport(req: Request<{}, {}, { startDate: string, endDate: string }>, res: Response) {
+        try {
+            const file = await orderProvider.generateOrdersHeadersReport(req.body.startDate, req.body.endDate, req.user);
+
+            res.send(file);
+        } catch (error) {
+            errorHandler(error, res);
+        }
+    }
+
+     static async generateOrdersItemsReport(req: Request<{}, {}, { startDate: string, endDate: string }>, res: Response) {
+        try {
+            const file = await orderProvider.generateOrdersItemsReport(req.body.startDate, req.body.endDate, req.user);
+
+            res.send(file);
+        } catch (error) {
+            errorHandler(error, res);
+        }
+    }
 }

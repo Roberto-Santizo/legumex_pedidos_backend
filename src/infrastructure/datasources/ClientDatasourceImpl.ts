@@ -10,8 +10,8 @@ export class ClientDatasourceImpl implements ClientDatasource {
         this.repo = appDatasource.getRepository(Client);
     }
 
-    createClient(name: string): Promise<Client> {
-        return this.repo.save({ name });
+    createClient(name: string, code: string): Promise<Client> {
+        return this.repo.save({ name, code });
     }
     getClients(): Promise<Client[]> {
         return this.repo.find({ order: { id: 'ASC' } });
