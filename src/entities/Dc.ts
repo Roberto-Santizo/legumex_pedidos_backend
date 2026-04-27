@@ -11,8 +11,11 @@ export class Dc {
     @Column()
     name: string;
 
-    @Column({default: '000'})
+    @Column({ default: '000' })
     code: string;
+
+    @Column({ default: 'AC-BAYTOWN' })
+    warehouse: string;
 
     @ManyToOne(() => Client, client => client.dcs)
     @JoinColumn({ name: 'client_id' })

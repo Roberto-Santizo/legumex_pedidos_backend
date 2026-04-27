@@ -4,7 +4,8 @@ export class ClientResource {
     static json(userClient: UserClient) {
         return {
             id: userClient.client.id,
-            name: userClient.client.name
+            name: userClient.client.name,
+            code: userClient.client.code
         }
     }
 

@@ -1,4 +1,4 @@
-import { Dc } from "../entities/Dc";
+import { Dc } from "../entities/entities";
 
 export class DcResource {
     static json(dc: Dc) {
@@ -6,7 +6,8 @@ export class DcResource {
             id: dc.id,
             name: dc.name,
             client: dc.client.name,
-            code: dc.code
+            code: dc.code,
+            warehouse: dc.warehouse
         }
     }
 

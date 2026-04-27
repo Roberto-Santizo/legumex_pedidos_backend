@@ -96,6 +96,7 @@ export interface CreateOrUpdateDc {
     client_id: Client['id'];
     client: Client;
     code: string;
+    warehouse: string;
 }
 
 //ERRORS

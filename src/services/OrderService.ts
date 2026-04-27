@@ -29,7 +29,7 @@ export class OrderService {
                 client: order.client.name,
                 currency: '',
                 site: '1',
-                warehouse: 'AC-BAYTOWN',
+                warehouse: order.dc.warehouse,
                 deliveryAddressName: '',
                 deliveryDate: DateHandler.formatSpanishDate(order.requiredByDate),
                 receiptDate: DateHandler.addDays(order.requiredByDate, 2),
@@ -129,7 +129,7 @@ export class OrderService {
     }
 
     async getOrders(user: User, clientId?: string, startDate?: string, endDate?: string) {
-        let options: FindManyOptions<Order> = { relations: ['client', 'confirmedBy'] }
+        let options: FindManyOptions<Order> = { relations: ['client', 'confirmedBy', 'dc'] }
 
         if (user.role === 'client') {
             options = { ...options, where: { user: { id: user.id } } }
