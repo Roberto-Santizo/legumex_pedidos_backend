@@ -48,7 +48,7 @@ export class OrderService {
                 unit: '',
                 price: item.product.price,
                 unitPrice: '',
-                warehouse: 'AC-BAYTOWN'
+                warehouse: item.order.dc.warehouse
             });
         });
     }
