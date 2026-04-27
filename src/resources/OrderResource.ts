@@ -69,7 +69,8 @@ export class OrderResource {
             transportType: order.transportType,
             requiredByDate: order.requiredByDate,
             confirmedBy: order.confirmedBy != null ? order.confirmedBy.name : null,
-            dc: order.dc.name
+            dc: order.dc.name,
+            po: order.po
         }
     }
 

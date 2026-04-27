@@ -86,7 +86,7 @@ export class ProductService {
 
         if (!dc) throw new NotFoundError("El DC no existe");
         if (!client) throw new NotFoundError("El cliente no existe");
-        
+
         payload.dc = dc;
         payload.client = client;
 
@@ -145,6 +145,10 @@ export class ProductService {
 
         if (filters.dc) {
             options = { ...options, where: { ...options.where, dc: { id: filters.dc } } }
+        }
+
+        if (filters.transportType) {
+            options = { ...options, where: { ...options.where, transportType: filters.transportType } }
         }
 
         return this.repository.getPaginatedProducts(options);

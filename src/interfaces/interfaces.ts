@@ -48,6 +48,7 @@ export interface ProductFilters {
     localCode: string;
     name: string;
     dc: Dc['id'];
+    transportType: TransportOptions;
 }
 
 
