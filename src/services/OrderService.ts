@@ -30,7 +30,7 @@ export class OrderService {
                 currency: '',
                 site: '1',
                 warehouse: order.dc.warehouse,
-                deliveryAddressName: '',
+                deliveryAddressName: order.dc.extended_name,
                 deliveryDate: DateHandler.formatSpanishDate(order.requiredByDate),
                 receiptDate: DateHandler.addDays(order.requiredByDate, 2),
             });
