@@ -7,6 +7,7 @@ export class ProductResource {
             name: product.name,
             localCode: product.localCode,
             internationalCode: product.internationalCode,
+            auxCode: product.auxCode,
             price: product.price,
             presentation: product.presentation,
             units_per_box: product.units_per_box,

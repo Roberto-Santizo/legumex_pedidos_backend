@@ -42,7 +42,7 @@ export class OrderService {
             worksheet.addRow({
                 order: '',
                 po: item.order.po,
-                productCode: item.product.internationalCode,
+                productCode: item.product.auxCode,
                 totalBoxes: item.total_boxes,
                 totalPounds: item.total_boxes * item.product.presentation,
                 unit: '',
