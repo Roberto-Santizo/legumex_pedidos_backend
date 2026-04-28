@@ -101,6 +101,7 @@ export interface CreateOrUpdateDc {
     client: Client;
     code: string;
     warehouse: string;
+    extended_name: string;
 }
 
 //ERRORS

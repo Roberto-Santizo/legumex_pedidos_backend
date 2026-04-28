@@ -11,6 +11,9 @@ export class Dc {
     @Column()
     name: string;
 
+    @Column({ nullable: true })
+    extended_name: string;
+
     @Column({ default: '000' })
     code: string;
 

@@ -10,6 +10,7 @@ router.use(authenticated);
 
 router.post('/',
     body('name').notEmpty().withMessage('El nombre del dc es requerido'),
+    body('extended_name').notEmpty().withMessage('El nombre extendido del dc es requerido'),
     body('client_id').notEmpty().withMessage('El client del dc es requerido'),
     body('code').notEmpty().withMessage('El código del DC es requerido'),
     body('warehouse').notEmpty().withMessage('El DC es requerido'),
