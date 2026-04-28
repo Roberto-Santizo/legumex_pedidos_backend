@@ -132,9 +132,9 @@ export abstract class OrderController {
         }
     }
 
-    static async uploadFile(req: Request, res: Response) {
+    static async uploadFile(req: Request<{}, {}, { year: number, week: number }>, res: Response) {
         try {
-            const results = await orderProvider.uploadFile(req.file, req.user);
+            const results = await orderProvider.uploadFile(req.file, req.user, req.body.year, req.body.week);
 
             responseHandler(res, 200, 'Archivo subido correctamente', results);
         } catch (error) {
@@ -152,7 +152,7 @@ export abstract class OrderController {
         }
     }
 
-     static async generateOrdersItemsReport(req: Request<{}, {}, { startDate: string, endDate: string }>, res: Response) {
+    static async generateOrdersItemsReport(req: Request<{}, {}, { startDate: string, endDate: string }>, res: Response) {
         try {
             const file = await orderProvider.generateOrdersItemsReport(req.body.startDate, req.body.endDate, req.user);
 

@@ -75,6 +75,8 @@ export interface CreateOrderPayload {
     requiredByDate: string;
     createdAt: string;
     po: string;
+    year: number;
+    week: number;
 }
 
 export interface ConfirmOrderPayload {

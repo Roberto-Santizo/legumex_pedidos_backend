@@ -28,6 +28,12 @@ export class Order {
     @Column()
     date: string;
 
+    @Column("int")
+    year: number;
+
+    @Column("int")
+    week: number;
+
     @Column('float', { nullable: true, default: 0 })
     total_lbs: number;
 

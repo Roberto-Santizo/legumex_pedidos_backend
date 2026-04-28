@@ -70,7 +70,9 @@ export class OrderResource {
             requiredByDate: order.requiredByDate,
             confirmedBy: order.confirmedBy != null ? order.confirmedBy.name : null,
             dc: order.dc.name,
-            po: order.po
+            po: order.po,
+            year: order.year,
+            week: order.week
         }
     }
 

@@ -7,7 +7,7 @@ import { Dc, Product } from "../../entities/entities";
 import z from "zod";
 
 export class OrderMapper {
-    static formatOrder(order: z.infer<typeof OrderSchema>, transportType: TransportOptions, dc: Dc): CreateOrderPayload {
+    static formatOrder(order: z.infer<typeof OrderSchema>, transportType: TransportOptions, dc: Dc, year: number, week: number): CreateOrderPayload {
         return {
             client_id: order.client.id,
             client: null,
@@ -18,7 +18,9 @@ export class OrderMapper {
             date: getCurrentDate(),
             createdAt: getCurrentDate(),
             requiredByDate: order.required_delivery_date ?? getCurrentDate(),
-            user: null
+            user: null,
+            year,
+            week
         }
     }
 
@@ -47,12 +49,12 @@ export class OrderMapper {
         return formattedProducts;
     }
 
-    static async validateProducts(orderProducts: z.infer<typeof ProductSchema>[], products: Product[]){
+    static async validateProducts(orderProducts: z.infer<typeof ProductSchema>[], products: Product[]) {
         const errors: OrderMapperResult[] = [];
 
-        for (const item of orderProducts){
+        for (const item of orderProducts) {
             const product = products.find((product) => (product.internationalCode == item.code));
-            if(!product){
+            if (!product) {
                 errors.push({ success: false, message: `El producto con código ${item.code} no existe` });
             }
         }

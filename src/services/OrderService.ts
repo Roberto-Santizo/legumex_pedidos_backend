@@ -11,7 +11,7 @@ import { OrderMapper } from "../infrastructure/mappers/OrderMapper";
 import { orderProductProvider } from "../providers/orderProductRepositoryProvider";
 import { OrderRepository } from "../domain/domain";
 import { OrderResource } from "../resources/OrderResource";
-import { OrderSchema, OrdersIAResponseSchema, ProductSchema } from "../domain/schemas/schemas";
+import { OrderSchema, OrdersIAResponseSchema } from "../domain/schemas/schemas";
 import { productProvider } from "../providers/productRepositoryProvider";
 import { TransportOptions } from "../entities/Order";
 import ExcelJS from 'exceljs';
@@ -26,7 +26,7 @@ export class OrderService {
                 clientCode: order.client.code,
                 documentType: '',
                 po: order.po,
-                client: order.client.name,
+                client: `${order.client.name} ${order.week}-${order.year}`,
                 currency: '',
                 site: '1',
                 warehouse: order.dc.warehouse,
@@ -76,8 +76,8 @@ export class OrderService {
         return firstProduct.transportType;
     }
 
-    async _createOrder(data: z.infer<typeof OrderSchema>, user: User, transportType: TransportOptions, dc: Dc): Promise<Order> {
-        const order = OrderMapper.formatOrder(data, transportType, dc);
+    async _createOrder(data: z.infer<typeof OrderSchema>, user: User, transportType: TransportOptions, dc: Dc, year: number, week: number): Promise<Order> {
+        const order = OrderMapper.formatOrder(data, transportType, dc, year, week);
         const newOrder = await this.createOrder(user, order);
         return newOrder;
     }
@@ -87,7 +87,7 @@ export class OrderService {
         await orderProductProvider.createProducts(orderProducts);
     }
 
-    async _processOrderInformation(data: z.infer<typeof OrderSchema>, user: User, clients: Client[], dcs: Dc[], products: Product[]): Promise<OrderMapperResult> {
+    async _processOrderInformation(data: z.infer<typeof OrderSchema>, user: User, clients: Client[], dcs: Dc[], products: Product[], year: number, week: number): Promise<OrderMapperResult> {
         try {
             const dc = dcs.filter((dc) => dc.id === data.dc.id)[0];
             const client = clients.filter((client) => client.id === data.client.id)[0];
@@ -100,7 +100,7 @@ export class OrderService {
                 return validationOrder;
             }
 
-            const newOrder = await this._createOrder(data, user, validationOrder, dc);
+            const newOrder = await this._createOrder(data, user, validationOrder, dc, year, week);
             await this._addProductsToOrder(data, newOrder, filterdProducts);
 
             return { success: true, message: `Orden con PO ${data.po} procesada correctamente` }
@@ -149,7 +149,7 @@ export class OrderService {
     async getPaginatedOrders(user: User, limit?: number, offset?: number) {
         const ops: FindOptionsWhere<Order> = user.role == 'client' ? { user: { id: user.id } } : {}
         let options: FindManyOptions<Order> = {
-            order: { id: 'ASC' },
+            order: { id: 'DESC' },
             where: ops,
             take: limit,
             skip: (offset - 1) * limit,
@@ -175,7 +175,7 @@ export class OrderService {
         return this.repository.confirmReceivedOrder(user, id);
     }
 
-    async uploadFile(file: Express.Multer.File, user: User) {
+    async uploadFile(file: Express.Multer.File, user: User, year: number, week: number) {
         const dcs = await dcProvider.getDcs();
         const clients = await clientProvider.getClients();
         const text = await this.ia.uploadFile(file, dcs, clients);
@@ -189,7 +189,7 @@ export class OrderService {
 
         const results: OrderMapperResult[] = [];
         for (const order of data) {
-            const result = await this._processOrderInformation(order, user, clients, dcs, products);
+            const result = await this._processOrderInformation(order, user, clients, dcs, products, year, week);
             results.push(result);
         }
 

@@ -17,6 +17,8 @@ router.post('/',
     body('transportType').notEmpty().withMessage('El tipo de transporte es requerido'),
     body('requiredByDate').notEmpty().withMessage('La fecha de requerimiento es requerida'),
     body('po').notEmpty().withMessage('La PO de la orden es requerida'),
+    body('year').notEmpty().withMessage('El año es requerido').isNumeric().withMessage('El año debe de ser un dato númerico'),
+    body('week').notEmpty().withMessage('La semana es requerida').isNumeric().withMessage('La semana debe de ser un dato númerico'),
     returnValidationErrors,
     OrderController.store
 );
@@ -100,6 +102,9 @@ router.delete('/deleteItem/:id/:itemId',
 router.post('/uploadFile',
     upload.single('file'),
     fileExists,
+    body('year').notEmpty().withMessage('El año es requerido').isNumeric().withMessage('El año debe de ser un dato númerico'),
+    body('week').notEmpty().withMessage('La semana es requerida').isNumeric().withMessage('La semana debe de ser un dato númerico'),
+    returnValidationErrors,
     OrderController.uploadFile
 );
 
