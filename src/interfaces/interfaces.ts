@@ -31,6 +31,7 @@ export interface CreateOrUpdateProductPayload {
     dc_id: Dc['id'];
     dc: Dc;
     transportType: TransportOptions;
+    auxCode: string;
 }
 
 export interface UpdateProductPricePayload {

@@ -1,6 +1,6 @@
 import { authenticated } from "../middlewares/authentication";
 import { body, param, query } from "express-validator";
-import { isAdmin, isAdministrativeUser } from "../middlewares/roles";
+import { isAdministrativeUser } from "../middlewares/roles";
 import { ProductController } from "../controllers/ProductController";
 import { returnValidationErrors } from "../middlewares/validation";
 import { Router } from "express";
@@ -16,12 +16,13 @@ router.post('/',
     body('name').notEmpty().withMessage('El nombre del producto es requerido'),
     body('localCode').notEmpty().withMessage('El código local del producto es requerido'),
     body('internationalCode').notEmpty().withMessage('El código internacional del producto es requerido'),
+    body('auxCode').notEmpty().withMessage('El código auxiliar del producto es requerido'),
     body('presentation').notEmpty().withMessage('La presentación del producto es requerida').isNumeric().withMessage('La presentación debe de ser un dato númerico'),
     body('price').notEmpty().withMessage('El precio del producto es requerido').isNumeric().withMessage('El precio del producto debe de ser un dato númerico'),
     body('units_per_box').notEmpty().withMessage('Las unidades por caja son requeridas').isNumeric().withMessage('Las unidades por caja debe de ser un dato númerico'),
     body('boxes_per_pallet').notEmpty().withMessage('Las cajas por pallet son requeridas').isNumeric().withMessage('Las cajas por pallet debe de ser un dato númerico'),
     body('client_id').notEmpty().withMessage('El cliente es requerido').isNumeric().withMessage('El cliente debe de ser un dato númerico'),
-    body('dc').notEmpty().withMessage('El código de distribución es requerido'),
+    body('dc_id').notEmpty().withMessage('El código de distribución es requerido'),
     body('transportType').notEmpty().withMessage('El tipo de transporte es requerido'),
     returnValidationErrors,
     ProductController.store

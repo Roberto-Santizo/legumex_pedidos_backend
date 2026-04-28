@@ -36,12 +36,13 @@ export class ProductService {
             name: row.getCell(1).value as string,
             localCode: row.getCell(2).value as string,
             internationalCode: row.getCell(3).value as string,
-            presentation: +row.getCell(4).value,
-            price: +row.getCell(5).value,
-            units_per_box: +row.getCell(6).value,
-            boxes_per_pallet: +row.getCell(7).value,
+            auxCode: row.getCell(4).value as string,
+            presentation: +row.getCell(5).value,
+            price: +row.getCell(6).value,
+            units_per_box: +row.getCell(7).value,
+            boxes_per_pallet: +row.getCell(8).value,
             dc: dc,
-            transportType: row.getCell(10).value as TransportOptions,
+            transportType: row.getCell(11).value as TransportOptions,
             client_id: client.id,
             client: client,
             dc_id: dc.id
@@ -67,7 +68,9 @@ export class ProductService {
     async createProduct(payload: CreateOrUpdateProductPayload) {
         // await this._validateCodes(payload.localCode, payload.internationalCode);
         const client = await clientProvider.getClientById(payload.client_id);
+        const dc = await dcProvider.getDcById(payload.dc_id);
         payload.client = client;
+        payload.dc = dc;
 
         return this.repository.createProduct(payload);
     }
@@ -121,7 +124,7 @@ export class ProductService {
 
     async getPaginatedProducts(filters: ProductFilters) {
         let options: FindManyOptions<Product> = {
-            order: { id: 'ASC' },
+            order: { id: 'DESC' },
             take: filters.limit,
             skip: (filters.offset - 1) * filters.limit,
             relations: ['client', 'dc']
@@ -164,13 +167,13 @@ export class ProductService {
         for (let i = 2; i <= worksheet.rowCount; i++) {
             const row = worksheet.getRow(i);
 
-            const client = clients.find(client => client.name === row.getCell(8).value);
-            const dc = dcs.find(dc => dc.code === row.getCell(9).value.toString());
+            const client = clients.find(client => client.name === row.getCell(9).value);
+            const dc = dcs.find(dc => dc.code === row.getCell(10).value.toString());
 
             if (!client) throw new NotFoundError("El cliente no existe");
             if (!dc) throw new NotFoundError("El DC no existe");
 
-            this._validateTransportType(row.getCell(10).value as TransportOptions);
+            this._validateTransportType(row.getCell(11).value as TransportOptions);
 
             await this.createProduct(this._formatRow(row, client, dc));
         }

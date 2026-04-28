@@ -17,6 +17,9 @@ export class Product {
     @Column()
     internationalCode: string;
 
+    @Column()
+    auxCode: string;
+
     @Column('enum', { enum: TransportOptions, default: TransportOptions.CROSSDOCK })
     transportType: TransportOptions;
 
