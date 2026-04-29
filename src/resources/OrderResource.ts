@@ -1,3 +1,4 @@
+import { DateHandler } from '../classes/DateHandler';
 import { Order, OrderProduct } from '../entities/entities';
 
 export class OrderResource {
@@ -67,7 +68,7 @@ export class OrderResource {
             total_boxes: order.total_boxes,
             client: order.client.name,
             transportType: order.transportType,
-            requiredByDate: order.requiredByDate,
+            requiredByDate: DateHandler.formatSpanishDate(order.requiredByDate),
             confirmedBy: order.confirmedBy != null ? order.confirmedBy.name : null,
             dc: order.dc.name,
             po: order.po,

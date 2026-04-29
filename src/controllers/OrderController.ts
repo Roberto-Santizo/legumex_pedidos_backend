@@ -31,7 +31,7 @@ export abstract class OrderController {
     static async getPaginatedOrders(req: Request, res: Response) {
         try {
             const { limit, offset } = req.query;
-            const [data, total] = await orderProvider.getPaginatedOrders(req.user, +limit, +offset);
+            const [data, total] = await orderProvider.getPaginatedOrders(req.user, req, +limit, +offset);
 
             const response = {
                 response: OrderResource.collection(data),

@@ -14,6 +14,7 @@ import { OrderResource } from "../resources/OrderResource";
 import { OrderSchema, OrdersIAResponseSchema } from "../domain/schemas/schemas";
 import { productProvider } from "../providers/productRepositoryProvider";
 import { TransportOptions } from "../entities/Order";
+import { Request } from 'express';
 import ExcelJS from 'exceljs';
 import z from "zod";
 
@@ -146,8 +147,34 @@ export class OrderService {
         return this.repository.getOrders(options);
     }
 
-    async getPaginatedOrders(user: User, limit?: number, offset?: number) {
-        const ops: FindOptionsWhere<Order> = user.role == 'client' ? { user: { id: user.id } } : {}
+    async getPaginatedOrders(user: User, req: Request, limit?: number, offset?: number) {
+        let ops: FindOptionsWhere<Order> = user.role == 'client' ? { user: { id: user.id } } : {}
+
+        if (req.query.po) {
+            ops = { ...ops, po: `${req.query.po}` }
+        }
+
+        if (req.query.year) {
+            ops = { ...ops, year: +req.query.year }
+        }
+
+        if (req.query.week) {
+            ops = { ...ops, week: +req.query.week }
+        }
+
+        if (req.query.client) {
+            ops = { ...ops, client: { id: +req.query.client } }
+        }
+
+        if (req.query.dc) {
+            ops = { ...ops, dc: { id: +req.query.dc } }
+        }
+
+        if (req.query.transportType) {
+            ops = { ...ops, transportType: req.query.tranportType as TransportOptions }
+        }
+
+
         let options: FindManyOptions<Order> = {
             order: { id: 'DESC' },
             where: ops,
