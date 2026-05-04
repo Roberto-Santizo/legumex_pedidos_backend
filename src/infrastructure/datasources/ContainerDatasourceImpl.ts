@@ -28,7 +28,7 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
         // 'client' is not eager so we must load it explicitly.
         // 'products' (OrderProduct) also not eager; Product inside OrderProduct IS eager.
         const orders = await this.orderRepo.find({
-            where: { status: 3, requiredByDate: Between(weekStart, weekEnd) },
+            where: { status: 3, requiredByDate: Between(new Date(weekStart + 'T00:00:00'), new Date(weekEnd + 'T23:59:59')) },
             relations: ['client', 'products'],
             order: { id: 'DESC' },
         });

@@ -28,10 +28,10 @@ export class Order {
     @Column()
     date: string;
 
-    @Column("int")
+    @Column("int", { default: 0 })
     year: number;
 
-    @Column("int")
+    @Column("int", { default: 0 })
     week: number;
 
     @Column('float', { nullable: true, default: 0 })

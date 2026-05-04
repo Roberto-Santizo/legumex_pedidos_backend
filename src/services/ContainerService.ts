@@ -241,12 +241,14 @@ export class ContainerService {
     }
 
     private validateOrdersInWeek(
-        orders: { id: number; requiredByDate: string }[],
+        orders: { id: number; requiredByDate: Date }[],
         weekStart: string,
         weekEnd: string,
     ): void {
+        const start = new Date(weekStart + 'T00:00:00');
+        const end   = new Date(weekEnd   + 'T23:59:59');
         const outOfWeek = orders.filter(
-            (o) => o.requiredByDate < weekStart || o.requiredByDate > weekEnd,
+            (o) => o.requiredByDate < start || o.requiredByDate > end,
         );
         if (outOfWeek.length > 0) {
             throw new BadRequestError(
