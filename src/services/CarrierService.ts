@@ -11,13 +11,13 @@ export class CarrierService {
         return carriers.map((c) => this.format(c));
     }
 
-    async create(input: { name: string; shippingCost: number; rateUpdatedAt: string }) {
+    async create(input: { name: string; shippingCost: number; rateUpdatedAt: string; dcId?: number | null }) {
         this.validateFields(input.name, input.shippingCost, input.rateUpdatedAt);
         const carrier = await this.repository.create(input);
         return this.format(carrier);
     }
 
-    async update(id: number, input: { name?: string; shippingCost?: number; rateUpdatedAt?: string }) {
+    async update(id: number, input: { name?: string; shippingCost?: number; rateUpdatedAt?: string; dcId?: number | null }) {
         const existing = await this.repository.findById(id);
         if (!existing) throw new NotFoundError('Carrier not found');
 
@@ -28,7 +28,12 @@ export class CarrierService {
             throw new BadRequestError('Shipping cost must be a non-negative number');
         }
 
-        const updated = await this.repository.update(id, input);
+        const updated = await this.repository.update(id, {
+            name: input.name,
+            shippingCost: input.shippingCost,
+            rateUpdatedAt: input.rateUpdatedAt,
+            ...('dcId' in input && { dcId: input.dcId }),
+        });
         return this.format(updated);
     }
 
@@ -36,6 +41,18 @@ export class CarrierService {
         const existing = await this.repository.findById(id);
         if (!existing) throw new NotFoundError('Carrier not found');
         await this.repository.delete(id);
+    }
+
+    async getRates(carrierId: number) {
+        const existing = await this.repository.findById(carrierId);
+        if (!existing) throw new NotFoundError('Carrier not found');
+        const rates = await this.repository.getRates(carrierId);
+        return rates.map((r) => ({
+            id: r.id,
+            cost: Number(r.cost),
+            effectiveDate: r.effectiveDate,
+            createdAt: r.createdAt,
+        }));
     }
 
     private validateFields(name: string, shippingCost: number, rateUpdatedAt: string) {
@@ -50,6 +67,7 @@ export class CarrierService {
             name: c.name,
             shippingCost: Number(c.shippingCost),
             rateUpdatedAt: c.rateUpdatedAt,
+            dc: c.dc ? { id: c.dc.id, name: c.dc.name, code: c.dc.code } : null,
             createdAt: c.createdAt,
             updatedAt: c.updatedAt,
         };

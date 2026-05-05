@@ -112,7 +112,13 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
         const carrier = await carrierRepo.findOneBy({ id: carrierId });
         if (!carrier) throw new NotFoundError('Carrier not found');
 
-        await this.containerRepo.update({ id: containerId }, { carrier: { id: carrierId } });
+        await this.containerRepo.update(
+            { id: containerId },
+            {
+                carrier: { id: carrierId },
+                carrierCostSnapshot: Number(carrier.shippingCost),
+            },
+        );
         return this.getContainerWithDetails(containerId);
     }
 

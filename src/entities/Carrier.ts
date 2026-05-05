@@ -1,6 +1,7 @@
 // Created by Luis
 
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Dc } from './Dc';
 
 @Entity()
 export class Carrier {
@@ -21,4 +22,8 @@ export class Carrier {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @ManyToOne(() => Dc, { nullable: true, eager: false })
+    @JoinColumn({ name: 'dc_id' })
+    dc: Dc | null;
 }
