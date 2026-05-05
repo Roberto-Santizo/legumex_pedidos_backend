@@ -46,4 +46,12 @@ router.delete(
     CarrierController.destroy,
 );
 
+// GET /api/carriers/:id/rates
+router.get(
+    '/:id/rates',
+    param('id').isInt({ min: 1 }).withMessage('id must be a positive integer'),
+    returnValidationErrors,
+    CarrierController.rates,
+);
+
 export default router;

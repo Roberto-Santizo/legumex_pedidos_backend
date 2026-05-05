@@ -80,4 +80,8 @@ export class Container {
     @ManyToOne(() => Carrier, { nullable: true, eager: false })
     @JoinColumn({ name: 'carrier_id' })
     carrier: Carrier | null;
+
+    // Shipping cost frozen at the moment the carrier was assigned — never changes
+    @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
+    carrierCostSnapshot: number | null;
 }

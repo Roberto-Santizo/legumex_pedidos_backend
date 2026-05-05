@@ -10,3 +10,4 @@ export { UserClient } from "./UserClient";
 export { Container } from "./Container";
 export { ContainerOrder } from "./ContainerOrder";
 export { Carrier } from "./Carrier";
+export { CarrierRate } from "./CarrierRate";

@@ -18,8 +18,13 @@ export abstract class CarrierController {
     // POST /api/carriers
     static async store(req: Request, res: Response) {
         try {
-            const { name, shippingCost, rateUpdatedAt } = req.body;
-            const carrier = await carrierProvider.create({ name, shippingCost: Number(shippingCost), rateUpdatedAt });
+            const { name, shippingCost, rateUpdatedAt, dcId } = req.body;
+            const carrier = await carrierProvider.create({
+                name,
+                shippingCost: Number(shippingCost),
+                rateUpdatedAt,
+                dcId: dcId !== undefined ? Number(dcId) : null,
+            });
             responseHandler(res, 201, 'Carrier created successfully', carrier);
         } catch (error) {
             errorHandler(error, res);
@@ -30,11 +35,12 @@ export abstract class CarrierController {
     static async update(req: Request, res: Response) {
         try {
             const id = Number(req.params.id);
-            const { name, shippingCost, rateUpdatedAt } = req.body;
+            const { name, shippingCost, rateUpdatedAt, dcId } = req.body;
             const payload: Record<string, unknown> = {};
             if (name !== undefined) payload.name = name;
             if (shippingCost !== undefined) payload.shippingCost = Number(shippingCost);
             if (rateUpdatedAt !== undefined) payload.rateUpdatedAt = rateUpdatedAt;
+            if (dcId !== undefined) payload.dcId = Number(dcId);
             const carrier = await carrierProvider.update(id, payload);
             responseHandler(res, 200, 'Carrier updated successfully', carrier);
         } catch (error) {
@@ -48,6 +54,17 @@ export abstract class CarrierController {
             const id = Number(req.params.id);
             await carrierProvider.delete(id);
             responseHandler(res, 200, 'Carrier deleted successfully');
+        } catch (error) {
+            errorHandler(error, res);
+        }
+    }
+
+    // GET /api/carriers/:id/rates
+    static async rates(req: Request, res: Response) {
+        try {
+            const id = Number(req.params.id);
+            const data = await carrierProvider.getRates(id);
+            responseHandler(res, 200, 'Carrier rates retrieved successfully', data);
         } catch (error) {
             errorHandler(error, res);
         }

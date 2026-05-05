@@ -10,6 +10,8 @@ const router = Router();
 router.use(authenticated);
 router.use(isAdministrativeUser);
 
+router.get('/transport-cost', ReportController.getTransportCostReport);
+
 router.post('/getOrdersReportByClientDate/:id',
     param('id').notEmpty().withMessage('El ID es requerido').isNumeric().withMessage('El ID debe de ser un dato númerico'),
     returnValidationErrors,
