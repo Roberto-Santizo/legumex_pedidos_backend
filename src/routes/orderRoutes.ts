@@ -4,7 +4,7 @@ import { fileExists, isOrderOwner } from "../middlewares/orders";
 import { OrderController } from "../controllers/OrderController";
 import { returnValidationErrors } from "../middlewares/validation";
 import { Router } from "express";
-import { isAdministrativeUser } from "../middlewares/roles";
+import { isAdministrativeUser } from '../middlewares/roles';
 import { upload } from "../config/multerConfig";
 
 const router = Router();
@@ -122,6 +122,33 @@ router.post('/ordersItemsReport',
     body('endDate').notEmpty().withMessage('La fecha de fin es requerida'),
     returnValidationErrors,
     OrderController.generateOrdersItemsReport
+);
+
+router.get('/orderEditDetails/:id',
+    isAdministrativeUser,
+    param('id').notEmpty().withMessage('El ID es requerido').isNumeric().withMessage('El ID debe de ser un dato númerico'),
+    returnValidationErrors,
+    OrderController.getOrderEditDetails
+);
+
+router.patch('/:id',
+    isAdministrativeUser,
+    body('client_id').notEmpty().withMessage('El cliente es requerido').isNumeric().withMessage('El cliente debe de ser un dato númerico'),
+    body('dc_id').notEmpty().withMessage('El dc es requerido'),
+    body('transportType').notEmpty().withMessage('El tipo de transporte es requerido'),
+    body('requiredByDate').notEmpty().withMessage('La fecha de requerimiento es requerida'),
+    body('po').notEmpty().withMessage('La PO de la orden es requerida'),
+    body('year').notEmpty().withMessage('El año es requerido').isNumeric().withMessage('El año debe de ser un dato númerico'),
+    body('week').notEmpty().withMessage('La semana es requerida').isNumeric().withMessage('La semana debe de ser un dato númerico'),
+    returnValidationErrors,
+    OrderController.update
+);
+
+router.delete('/:id',
+    isAdministrativeUser,
+    param('id').notEmpty().withMessage('El ID es requerido').isNumeric().withMessage('El ID debe de ser un dato númerico'),
+    returnValidationErrors,
+    OrderController.deleteOrder
 );
 
 export default router;

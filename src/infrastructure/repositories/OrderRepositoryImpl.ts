@@ -1,10 +1,18 @@
 import { Order, User } from '../../entities/entities';
 import { OrderDatasource, OrderRepository } from '../../domain/domain';
-import { FindManyOptions, UpdateResult } from 'typeorm';
-import { ConfirmOrderPayload, CreateOrderPayload } from '../../interfaces/interfaces';
+import { DeleteResult, FindManyOptions, UpdateResult } from 'typeorm';
+import { ConfirmOrderPayload, CreateOrderPayload, UpdateOrderPayload } from '../../interfaces/interfaces';
 
 export class OrderRepositoryImpl implements OrderRepository {
     constructor(private datasource: OrderDatasource) { }
+
+    updateOrder(id: Order['id'], payload: UpdateOrderPayload): Promise<UpdateResult> {
+        return this.datasource.updateOrder(id, payload);
+    }
+
+    deleteOrder(id: Order['id']): Promise<DeleteResult> {
+        return this.datasource.deleteOrder(id);
+    }
 
     confirmReceivedOrder(user: User, id: Order['id']): Promise<UpdateResult> {
         return this.datasource.confirmReceivedOrder(user, id);

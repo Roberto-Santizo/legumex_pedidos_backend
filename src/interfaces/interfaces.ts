@@ -61,6 +61,18 @@ export interface OrderProductPayload {
     total_boxes: number;
 }
 
+export interface UpdateOrderPayload {
+    po: string;
+    requiredByDate: string;
+    year: number;
+    week: number;
+    client_id: number;
+    client: Client;
+    dc_id: number;
+    dc: Dc;
+    transportType: TransportOptions;
+}
+
 export interface CreateOrderProductPayload {
     products: OrderProductPayload[];
 }

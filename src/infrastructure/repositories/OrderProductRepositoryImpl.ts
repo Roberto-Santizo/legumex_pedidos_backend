@@ -6,6 +6,10 @@ import { OrderProductPayload } from '../../interfaces/interfaces';
 export class OrderProductRepositoryImpl implements OrderProductRepository {
     constructor(private datasource: OrderProductDatasource) { }
 
+    deleteOrderItems(id: Order['id']): Promise<DeleteResult> {
+        return this.datasource.deleteOrderItems(id);
+    }
+
     getItems(options: FindManyOptions<OrderProduct>): Promise<OrderProduct[]> {
         return this.datasource.getItems(options);
     }

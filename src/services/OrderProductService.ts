@@ -53,4 +53,8 @@ export class OrderProductService {
         let options: FindManyOptions<OrderProduct> = { where: { order: { id: In(ids) } }, relations: ['product', 'order'], order: { order: { id: 'ASC' } } }
         return this.repository.getItems(options);
     }
+
+    async deleteOrderProducts(id: Order['id']){
+        return this.repository.deleteOrderItems(id);
+    }
 }

@@ -11,4 +11,5 @@ export abstract class OrderProductDatasource {
     abstract updateItemById(id: OrderProduct['id'], payload: OrderProductPayload): Promise<UpdateResult>;
     abstract deleteItem(id: OrderProduct['id']): Promise<DeleteResult>;
     abstract getItems(options: FindManyOptions<OrderProduct>): Promise<OrderProduct[]>;
+    abstract deleteOrderItems(id: Order['id']): Promise<DeleteResult>;
 }

@@ -2,7 +2,7 @@ import { Between, FindManyOptions, FindOptionsWhere, In } from "typeorm";
 import { Client, Dc, Order, OrderProduct, Product, User } from "../entities/entities";
 import { clientProvider } from "../providers/clientRepositoryProvider";
 import { ConflictError, NotFoundError } from "../infrastructure/infrastructure";
-import { CreateOrderPayload, OrderMapperResult } from "../interfaces/interfaces";
+import { CreateOrderPayload, OrderMapperResult, UpdateOrderPayload } from "../interfaces/interfaces";
 import { DateHandler } from "../classes/DateHandler";
 import { dcProvider } from "../providers/dcRepositoryProvider";
 import { emailService } from '../providers/emailProvider';
@@ -276,5 +276,22 @@ export class OrderService {
 
 
         return workbook.xlsx.writeBuffer();
+    }
+
+    async updateOrder( id: Order['id'], payload: UpdateOrderPayload ){
+        const client = await clientProvider.getClientById(payload.client_id);
+        payload.client = client;
+        const dc = await dcProvider.getDcById(payload.dc_id);
+        payload.dc = dc;
+
+        return this.repository.updateOrder(id, payload);
+    }
+
+    async deleteOrder(id: Order['id']){
+        await this.getOrderById(id);
+        await orderProductProvider.deleteOrderProducts(id);
+        await this.repository.deleteOrder(id);
+        
+        return true;
     }
 }

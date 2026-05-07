@@ -7,6 +7,14 @@ export class DateHandler {
         });
     }
 
+    static formatEnglishDate(date: Date) {
+        return date.toLocaleDateString('en-US', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+    }
+
     static addDays(date: Date, days: number) {
         const receiptDate = new Date(date);
         receiptDate.setDate(receiptDate.getDate() + days);

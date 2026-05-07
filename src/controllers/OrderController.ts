@@ -1,6 +1,6 @@
 import { errorHandler, responseHandler } from "../helpers/httpHelpers";
 import { Order, OrderProduct } from "../entities/entities";
-import { CreateOrderPayload, OrderProductPayload } from "../interfaces/interfaces";
+import { CreateOrderPayload, OrderProductPayload, UpdateOrderPayload } from "../interfaces/interfaces";
 import { orderProductProvider } from "../providers/orderProductRepositoryProvider";
 import { orderProvider } from "../providers/orderRepositoryProvider";
 import { OrderResource } from '../resources/OrderResource';
@@ -157,6 +157,35 @@ export abstract class OrderController {
             const file = await orderProvider.generateOrdersItemsReport(req.body.startDate, req.body.endDate, req.user);
 
             res.send(file);
+        } catch (error) {
+            errorHandler(error, res);
+        }
+    }
+
+    static async getOrderEditDetails(req: Request<{ id: Order['id'] }>, res: Response) {
+        try {
+            const order = await orderProvider.getOrderById(req.params.id);
+
+            responseHandler(res, 200, 'Datos de la orden obtenidos correctamente', OrderResource.orderEditDetails(order));
+        } catch (error) {
+            errorHandler(error, res);
+        }
+    }
+
+    static async update(req: Request<{id: Order['id']}, {}, UpdateOrderPayload>, res: Response) {
+        try {
+            await orderProvider.updateOrder(req.params.id, req.body);
+            
+            responseHandler(res, 200, 'Orden Actualizada Correctamente');
+        } catch (error) {
+            errorHandler(error, res);
+        }
+    }
+
+    static async deleteOrder(req: Request<{ id: Order['id'] }>, res: Response) {
+        try {
+            await orderProvider.deleteOrder(req.params.id);
+            responseHandler(res, 200, 'Orden Eliminada Correctamente');
         } catch (error) {
             errorHandler(error, res);
         }

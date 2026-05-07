@@ -13,6 +13,10 @@ export class OrderProductDatasourceImpl implements OrderProductDatasource {
         this.repo = appDatasource.getRepository(OrderProduct);
     }
 
+    deleteOrderItems(id: Order["id"]): Promise<DeleteResult> {
+        return this.repo.delete({ order: { id: id } });
+    }
+
     getItems(options: FindManyOptions<OrderProduct>): Promise<OrderProduct[]> {
         return this.repo.find(options);
     }
