@@ -119,6 +119,14 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
                 carrierCostSnapshot: Number(carrier.shippingCost),
             },
         );
+
+        // Status 5: orders now have a carrier assigned
+        const orderRows = await this.containerOrderRepo.findBy({ containerId });
+        const orderIds = orderRows.map((co) => co.orderId);
+        if (orderIds.length > 0) {
+            await this.orderRepo.update({ id: In(orderIds) }, { status: 5 });
+        }
+
         return this.getContainerWithDetails(containerId);
     }
 
@@ -158,6 +166,11 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
                 await manager.save(co);
             }
 
+            // Status 4: order is now assigned to a container
+            if (orders.length > 0) {
+                await manager.update(Order, { id: In(input.orderIds) }, { status: 4 });
+            }
+
             return saved;
         });
     }
@@ -181,6 +194,11 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
                 await manager.save(co);
             }
 
+            // Status 4: order is now assigned to a container
+            if (orderIds.length > 0) {
+                await manager.update(Order, { id: In(orderIds) }, { status: 4 });
+            }
+
             await this.recalculateTotals(manager, containerId);
         });
 
@@ -190,6 +208,8 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
     async removeOrderFromContainer(containerId: number, orderId: number): Promise<Container> {
         await appDatasource.manager.transaction(async (manager) => {
             await manager.delete(ContainerOrder, { containerId, orderId });
+            // Revert to status 3 so the order becomes available again
+            await manager.update(Order, { id: orderId }, { status: 3 });
             await this.recalculateTotals(manager, containerId);
         });
 
@@ -209,6 +229,13 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
     }
 
     async deleteContainer(containerId: number): Promise<void> {
+        // Revert all orders to status 3 before the CASCADE removes ContainerOrder rows
+        const orderRows = await this.containerOrderRepo.findBy({ containerId });
+        const orderIds = orderRows.map((co) => co.orderId);
+        if (orderIds.length > 0) {
+            await this.orderRepo.update({ id: In(orderIds) }, { status: 3 });
+        }
+
         // CASCADE on ContainerOrder.container will handle the junction rows automatically
         await this.containerRepo.delete({ id: containerId });
     }
