@@ -5,7 +5,7 @@ export class OrderResource {
     static orderEditDetails(order: Order){
         return {
             po: order.po,
-            requiredBy: DateHandler.formatEnglishDate(order.requiredByDate),
+            requiredByDate: DateHandler.formatEnglishDate(order.requiredByDate),
             dc_id: order.dc.id,
             client_id: order.client.id,
             transportType: order.transportType,
