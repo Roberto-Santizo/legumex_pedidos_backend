@@ -37,15 +37,14 @@ export class ContainerService {
             }
         }
 
-        // For past weeks the available orders list is always empty (read-only view)
-        const availableOrders = isPastWeek
-            ? []
-            : orders.filter((o) => !assignedOrderIds.has(o.id)).map((o) => this.formatOrderForResponse(o, null));
+        const availableOrders = orders
+            .filter((o) => !assignedOrderIds.has(o.id))
+            .map((o) => this.formatOrderForResponse(o, null));
 
         return {
             week: { start: weekStart, end: weekEnd },
             isCurrentWeek,
-            isReadonly: isPastWeek,
+            isReadonly: false,
             availableOrders,
             containers: containers.map((c) => this.formatContainerForResponse(c)),
         };
