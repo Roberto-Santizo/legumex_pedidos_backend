@@ -192,7 +192,7 @@ export class OrderService {
         const totals = OrderResource.orderTotals(products);
 
         if (order.status == 2) throw new ConflictError("La orden ya fue confirmada");
-        await emailService.sendOrderConfirmationEmail(order, products);
+        // await emailService.sendOrderConfirmationEmail(order, products);
         return this.repository.confirmOrder(id, totals);
     }
 
