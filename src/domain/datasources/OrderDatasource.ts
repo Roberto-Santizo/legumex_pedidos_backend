@@ -9,6 +9,6 @@ export abstract class OrderDatasource {
     abstract getOrders(options: FindManyOptions<Order>): Promise<Order[]>;
     abstract getPaginatedOrders(options: FindManyOptions<Order>, user?: User): Promise<[Order[], total: number]>;
     abstract confirmOrder(id: Order['id'], payload: ConfirmOrderPayload): Promise<UpdateResult>;
-    abstract confirmReceivedOrder(user: User, id: Order['id']): Promise<UpdateResult>;
+    abstract confirmReceivedOrder(user: User, id: Order['id'], payload: ConfirmOrderPayload): Promise<UpdateResult>;
     abstract deleteOrder(id: Order['id']): Promise<DeleteResult>;
 }

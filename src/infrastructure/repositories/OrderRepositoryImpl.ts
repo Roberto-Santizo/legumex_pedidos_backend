@@ -14,8 +14,8 @@ export class OrderRepositoryImpl implements OrderRepository {
         return this.datasource.deleteOrder(id);
     }
 
-    confirmReceivedOrder(user: User, id: Order['id']): Promise<UpdateResult> {
-        return this.datasource.confirmReceivedOrder(user, id);
+    confirmReceivedOrder(user: User, id: Order['id'], payload: ConfirmOrderPayload): Promise<UpdateResult> {
+        return this.datasource.confirmReceivedOrder(user, id, payload);
     }
 
     getPaginatedOrders(options: FindManyOptions<Order>, user?: User): Promise<[Order[], total: number]> {

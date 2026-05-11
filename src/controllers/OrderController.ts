@@ -172,10 +172,10 @@ export abstract class OrderController {
         }
     }
 
-    static async update(req: Request<{id: Order['id']}, {}, UpdateOrderPayload>, res: Response) {
+    static async update(req: Request<{ id: Order['id'] }, {}, UpdateOrderPayload>, res: Response) {
         try {
             await orderProvider.updateOrder(req.params.id, req.body);
-            
+
             responseHandler(res, 200, 'Orden Actualizada Correctamente');
         } catch (error) {
             errorHandler(error, res);

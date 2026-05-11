@@ -27,7 +27,7 @@ export class OrderProductDatasourceImpl implements OrderProductDatasource {
     }
 
     getItemById(id: OrderProduct["id"]): Promise<OrderProduct> {
-        return this.repo.findOneBy({ id });
+        return this.repo.findOne({ where: { id: id }, relations: ['product'] });
     }
 
     deleteItem(id: OrderProduct["id"]): Promise<DeleteResult> {

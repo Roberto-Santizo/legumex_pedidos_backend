@@ -21,8 +21,8 @@ export class OrderDatasourceImpl implements OrderDatasource {
         return this.repo.delete({ id });
     }
 
-    confirmReceivedOrder(user: User, id: Order["id"]): Promise<UpdateResult> {
-        return this.repo.update({ id }, { status: 3, confirmedBy: user, receviedConfirmatioDate: getCurrentDate() })
+    confirmReceivedOrder(user: User, id: Order["id"], payload: ConfirmOrderPayload): Promise<UpdateResult> {
+        return this.repo.update({ id }, { status: 3, confirmedBy: user, receviedConfirmatioDate: getCurrentDate(), ...payload })
     }
 
     async getPaginatedOrders(options: FindManyOptions<Order>, user?: User): Promise<[Order[], number]> {

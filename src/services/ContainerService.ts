@@ -2,7 +2,7 @@
 
 import { ContainerRepository } from '../domain/repositories/ContainerRepository';
 import { Container, ContainerStatus } from '../entities/Container';
-import { TransportOptions } from '../entities/Order';
+import { Order, TransportOptions } from '../entities/Order';
 import { Dc } from '../entities/Dc';
 import { BadRequestError, ConflictError, NotFoundError } from '../infrastructure/errors/errors';
 import { getCurrentWeekBounds, getWeekBounds } from '../utils/week';
@@ -14,7 +14,7 @@ const HARD_MAX_POUNDS = 42000; // absolute weight ceiling — the only hard bloc
 const MIN_POUNDS_WARNING = 20000;
 
 export class ContainerService {
-    constructor(private repository: ContainerRepository) {}
+    constructor(private repository: ContainerRepository) { }
 
     // ─── 3.1 GET /api/containers/week ────────────────────────────────────────
 
@@ -40,9 +40,7 @@ export class ContainerService {
         // For past weeks the available orders list is always empty (read-only view)
         const availableOrders = isPastWeek
             ? []
-            : orders
-                  .filter((o) => !assignedOrderIds.has(o.id))
-                  .map((o) => this.formatOrderForResponse(o, null));
+            : orders.filter((o) => !assignedOrderIds.has(o.id)).map((o) => this.formatOrderForResponse(o, null));
 
         return {
             week: { start: weekStart, end: weekEnd },
@@ -246,7 +244,7 @@ export class ContainerService {
         weekEnd: string,
     ): void {
         const start = new Date(weekStart + 'T00:00:00');
-        const end   = new Date(weekEnd   + 'T23:59:59');
+        const end = new Date(weekEnd + 'T23:59:59');
         const outOfWeek = orders.filter(
             (o) => o.requiredByDate < start || o.requiredByDate > end,
         );
@@ -281,7 +279,7 @@ export class ContainerService {
 
     // ─── Response formatters ─────────────────────────────────────────────────
 
-    private formatOrderForResponse(order: any, inContainerId: number | null) {
+    private formatOrderForResponse(order: Order, inContainerId: number | null) {
         const items = (order.products ?? []).map((op: any) => ({
             productName: op.product?.name ?? null,
             internationalCode: op.product?.internationalCode ?? null,
@@ -301,6 +299,8 @@ export class ContainerService {
             items,
             inContainerId,
             exceedsLimits: order.total_lbs > HARD_MAX_POUNDS,
+            status: order.status,
+            po: order.po
         };
     }
 

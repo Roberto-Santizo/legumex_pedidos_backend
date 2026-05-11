@@ -198,8 +198,11 @@ export class OrderService {
 
     async confirmReceivedOrder(user: User, id: Order['id']) {
         const order = await this.getOrderById(id);
-        if (order.status == 3) throw new ConflictError("La orden ya fue confirmada de recibida");
-        return this.repository.confirmReceivedOrder(user, id);
+        const products = await orderProductProvider.getProductsByOrderId(id);
+        if (products.length == 0) throw new ConflictError("La orden no tiene productos asociados");
+        const totals = OrderResource.orderTotals(products);
+
+        return this.repository.confirmReceivedOrder(user, id, totals);
     }
 
     async uploadFile(file: Express.Multer.File, user: User, year: number, week: number) {
@@ -278,7 +281,7 @@ export class OrderService {
         return workbook.xlsx.writeBuffer();
     }
 
-    async updateOrder( id: Order['id'], payload: UpdateOrderPayload ){
+    async updateOrder(id: Order['id'], payload: UpdateOrderPayload) {
         const client = await clientProvider.getClientById(payload.client_id);
         payload.client = client;
         const dc = await dcProvider.getDcById(payload.dc_id);
@@ -287,11 +290,11 @@ export class OrderService {
         return this.repository.updateOrder(id, payload);
     }
 
-    async deleteOrder(id: Order['id']){
+    async deleteOrder(id: Order['id']) {
         await this.getOrderById(id);
         await orderProductProvider.deleteOrderProducts(id);
         await this.repository.deleteOrder(id);
-        
+
         return true;
     }
 }
