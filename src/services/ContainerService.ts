@@ -292,6 +292,7 @@ export class ContainerService {
             client: order.client ? { id: order.client.id, name: order.client.name } : null,
             transportType: order.transportType,
             dc: order.dc,
+            warehouse: order.dc?.warehouse ?? null,
             requiredByDate: order.requiredByDate,
             totalPallets: order.total_pallets,
             totalPounds: order.total_lbs,
