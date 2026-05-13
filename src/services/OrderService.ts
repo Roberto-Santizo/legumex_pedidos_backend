@@ -129,7 +129,7 @@ export class OrderService {
         return order;
     }
 
-    async getOrders(user: User, clientId?: string, startDate?: string, endDate?: string) {
+    async getOrders(user: User, clientId?: string, year?: number, week?: number) {
         let options: FindManyOptions<Order> = { relations: ['client', 'confirmedBy', 'dc'] }
 
         if (user.role === 'client') {
@@ -140,8 +140,8 @@ export class OrderService {
             options = { ...options, where: { ...options.where, client: { id: +clientId } } }
         }
 
-        if (startDate && endDate) {
-            options = { ...options, where: { ...options.where, requiredByDate: Between(new Date(startDate), new Date(endDate)) } }
+        if (week && year) {
+            options = { ...options, where: { ...options.where, year: year, week: week } }
         }
 
         return this.repository.getOrders(options);
@@ -231,11 +231,11 @@ export class OrderService {
         };
     }
 
-    async generateOrdersHeadersReport(startDate: string, endDate: string, user: User): Promise<ExcelJS.Buffer> {
+    async generateOrdersHeadersReport(week: number, year: number, user: User): Promise<ExcelJS.Buffer> {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('headers');
 
-        const orders = await this.getOrders(user, null, startDate, endDate);
+        const orders = await this.getOrders(user, null, year, week);
 
         worksheet.columns = [
             { header: 'Codigo de Cliente', key: 'clientCode', width: 10 },
@@ -255,11 +255,11 @@ export class OrderService {
         return workbook.xlsx.writeBuffer();
     }
 
-    async generateOrdersItemsReport(startDate: string, endDate: string, user: User): Promise<ExcelJS.Buffer> {
+    async generateOrdersItemsReport(year: number, week: number, user: User): Promise<ExcelJS.Buffer> {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('items');
 
-        const orders = await this.getOrders(user, null, startDate, endDate);
+        const orders = await this.getOrders(user, null, year, week);
         const orderIds = orders.flatMap((order) => order.id);
         const items = await orderProductProvider.getItems(orderIds);
 

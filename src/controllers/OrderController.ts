@@ -17,10 +17,10 @@ export abstract class OrderController {
         }
     }
 
-    static async index(req: Request<{}, {}, {}, { client: string, startDate: string, endDate: string }>, res: Response) {
+    static async index(req: Request<{}, {}, {}, { client: string, year: number, week: number }>, res: Response) {
         try {
-            const { client, startDate, endDate } = req.query;
-            const orders = await orderProvider.getOrders(req.user, client, startDate, endDate);
+            const { client, year, week } = req.query;
+            const orders = await orderProvider.getOrders(req.user, client, year, week);
 
             responseHandler(res, 201, 'Ordenes Obtenidas Correctamente', OrderResource.collection(orders));
         } catch (error) {
@@ -142,9 +142,9 @@ export abstract class OrderController {
         }
     }
 
-    static async generateOrdersHeadersReport(req: Request<{}, {}, { startDate: string, endDate: string }>, res: Response) {
+    static async generateOrdersHeadersReport(req: Request<{}, {}, { week: number, year: number }>, res: Response) {
         try {
-            const file = await orderProvider.generateOrdersHeadersReport(req.body.startDate, req.body.endDate, req.user);
+            const file = await orderProvider.generateOrdersHeadersReport(req.body.week, req.body.year, req.user);
 
             res.send(file);
         } catch (error) {
@@ -152,9 +152,9 @@ export abstract class OrderController {
         }
     }
 
-    static async generateOrdersItemsReport(req: Request<{}, {}, { startDate: string, endDate: string }>, res: Response) {
+    static async generateOrdersItemsReport(req: Request<{}, {}, { year: number, week: number }>, res: Response) {
         try {
-            const file = await orderProvider.generateOrdersItemsReport(req.body.startDate, req.body.endDate, req.user);
+            const file = await orderProvider.generateOrdersItemsReport(req.body.year, req.body.week, req.user);
 
             res.send(file);
         } catch (error) {
