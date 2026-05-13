@@ -118,8 +118,8 @@ router.post('/ordersHeadersReport',
 
 router.post('/ordersItemsReport',
     isAdministrativeUser,
-    body('startDate').notEmpty().withMessage('La fecha de inicio es requerida'),
-    body('endDate').notEmpty().withMessage('La fecha de fin es requerida'),
+    body('year').notEmpty().withMessage('El año es requerido'),
+    body('week').notEmpty().withMessage('La semana es requerida'),
     returnValidationErrors,
     OrderController.generateOrdersItemsReport
 );
