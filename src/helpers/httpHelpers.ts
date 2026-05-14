@@ -2,7 +2,6 @@ import { BadRequestError, ConflictError, NotAuthorizedError, NotFoundError, Wron
 import { Response } from "express";
 
 export function errorHandler(err: Error, res: Response) {
-    // Created by Luis
     if (err instanceof BadRequestError) {
         return res.status(400).json({
             statusCode: 400,

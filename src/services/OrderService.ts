@@ -1,11 +1,11 @@
-import { Between, FindManyOptions, FindOptionsWhere, In } from "typeorm";
 import { Client, Dc, Order, OrderProduct, Product, User } from "../entities/entities";
 import { clientProvider } from "../providers/clientRepositoryProvider";
 import { ConflictError, NotFoundError } from "../infrastructure/infrastructure";
 import { CreateOrderPayload, OrderMapperResult, UpdateOrderPayload } from "../interfaces/interfaces";
-import { DateHandler } from "../classes/DateHandler";
 import { dcProvider } from "../providers/dcRepositoryProvider";
-import { emailService } from '../providers/emailProvider';
+import { ExcelHandler } from "../classes/ExcelHandler";
+import { FindManyOptions, FindOptionsWhere, In } from "typeorm";
+import { headersColumns, itemsColumns, orderDetailsColumns } from "../data/reports";
 import { IAProvider } from "../domain/providers/IAProvider";
 import { OrderMapper } from "../infrastructure/mappers/OrderMapper";
 import { orderProductProvider } from "../providers/orderProductRepositoryProvider";
@@ -13,47 +13,13 @@ import { OrderRepository } from "../domain/domain";
 import { OrderResource } from "../resources/OrderResource";
 import { OrderSchema, OrdersIAResponseSchema } from "../domain/schemas/schemas";
 import { productProvider } from "../providers/productRepositoryProvider";
-import { TransportOptions } from "../entities/Order";
 import { Request } from 'express';
+import { TransportOptions } from "../entities/Order";
 import ExcelJS from 'exceljs';
 import z from "zod";
 
 export class OrderService {
     constructor(private repository: OrderRepository, private ia: IAProvider) { }
-
-    _addRowsToWorksheet(orders: Order[], worksheet: ExcelJS.Worksheet) {
-        orders.map(order => {
-            worksheet.addRow({
-                clientCode: order.client.code,
-                documentType: '',
-                po: order.po,
-                client: `${order.client.name} ${order.week}-${order.year}`,
-                currency: '',
-                site: '1',
-                warehouse: order.dc.warehouse,
-                deliveryAddressName: order.dc.extended_name,
-                deliveryDate: DateHandler.formatSpanishDate(order.requiredByDate),
-                receiptDate: DateHandler.addDays(order.requiredByDate, 2),
-            });
-        });
-    }
-
-    _addRowsItemsToWorksheet(items: OrderProduct[], worksheet: ExcelJS.Worksheet) {
-        items.map(item => {
-            worksheet.addRow({
-                order: '',
-                po: item.order.po,
-                productCode: item.product.auxCode,
-                totalBoxes: item.total_boxes,
-                totalPounds: item.total_boxes * item.product.presentation,
-                unit: '',
-                price: item.product.price,
-                unitPrice: '',
-                warehouse: item.order.dc.warehouse
-            });
-        });
-    }
-
 
     _validateTransportType(type: TransportOptions) {
         if (!Object.values(TransportOptions).includes(type)) {
@@ -231,26 +197,19 @@ export class OrderService {
         };
     }
 
+    async getOrderItemsByOrdersIds(orders: Order[]): Promise<OrderProduct[]> {
+        const orderIds = orders.flatMap((order) => order.id);
+        const items = await orderProductProvider.getItems(orderIds);
+        return items;
+    }
+
     async generateOrdersHeadersReport(week: number, year: number, user: User): Promise<ExcelJS.Buffer> {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('headers');
-
         const orders = await this.getOrders(user, null, year, week);
 
-        worksheet.columns = [
-            { header: 'Codigo de Cliente', key: 'clientCode', width: 10 },
-            { header: 'Tipo de documento', key: 'documentType', width: 10 },
-            { header: 'Orden de Cliente', key: 'po', width: 10 },
-            { header: 'Referencia de Cliente', key: 'client', width: 10 },
-            { header: 'Moneda', key: 'currency', width: 10 },
-            { header: 'Sitio', key: 'site', width: 10 },
-            { header: 'Almacen', key: 'warehouse', width: 10 },
-            { header: 'Nombre dirección de entrega', key: 'deliveryAddressName', width: 10 },
-            { header: 'Fecha de envío solicitada', key: 'deliveryDate', width: 10 },
-            { header: 'Fecha de recepción solicitada', key: 'receiptDate', width: 10 },
-        ];
-
-        this._addRowsToWorksheet(orders, worksheet);
+        worksheet.columns = headersColumns;
+        ExcelHandler.addRowsToHeaderWorksheet(orders, worksheet);
 
         return workbook.xlsx.writeBuffer();
     }
@@ -258,27 +217,24 @@ export class OrderService {
     async generateOrdersItemsReport(year: number, week: number, user: User): Promise<ExcelJS.Buffer> {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('items');
-
         const orders = await this.getOrders(user, null, year, week);
-        const orderIds = orders.flatMap((order) => order.id);
-        const items = await orderProductProvider.getItems(orderIds);
+        const items = await this.getOrderItemsByOrdersIds(orders);
+        worksheet.columns = itemsColumns;
 
-        worksheet.columns = [
-            { header: 'Orden de venta', key: 'order', width: 10 },
-            { header: 'Po', key: 'po', width: 10 },
-            { header: 'Articulo', key: 'productCode', width: 10 },
-            { header: 'CantidadPC', key: 'totalBoxes', width: 10 },
-            { header: 'Cantidad', key: 'totalPounds', width: 10 },
-            { header: 'Unidad Medida', key: 'unit', width: 10 },
-            { header: 'Precio Venta', key: 'price', width: 10 },
-            { header: 'Precio Unitario', key: 'unitPrice', width: 10 },
-            { header: 'Almacen', key: 'warehouse', width: 10 },
-        ];
-
-        this._addRowsItemsToWorksheet(items, worksheet);
-
-
+        ExcelHandler.addRowsItemsToWorksheet(items, worksheet);
         return workbook.xlsx.writeBuffer();
+    }
+
+    async generateOrdersDetailsReport(year: number, week: number, user: User): Promise<ExcelJS.Buffer> {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('orders');
+        const orders = await this.getOrders(user, null, year, week);
+        const items = await this.getOrderItemsByOrdersIds(orders);
+        worksheet.columns = orderDetailsColumns;
+
+        ExcelHandler.addRowsOrdersDetailsToWorksheet(items, worksheet);
+
+        return workbook.xlsx.writeBuffer();;
     }
 
     async updateOrder(id: Order['id'], payload: UpdateOrderPayload) {

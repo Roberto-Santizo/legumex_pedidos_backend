@@ -162,6 +162,16 @@ export abstract class OrderController {
         }
     }
 
+    static async getOrdersDetailsReport(req: Request<{}, {}, { week: number, year: number }>, res: Response) {
+        try {
+            const file = await orderProvider.generateOrdersDetailsReport(req.body.year, req.body.week, req.user);
+            res.send(file);
+        } catch (error) {
+            errorHandler(error, res);
+        }
+    }
+
+
     static async getOrderEditDetails(req: Request<{ id: Order['id'] }>, res: Response) {
         try {
             const order = await orderProvider.getOrderById(req.params.id);
@@ -171,6 +181,7 @@ export abstract class OrderController {
             errorHandler(error, res);
         }
     }
+
 
     static async update(req: Request<{ id: Order['id'] }, {}, UpdateOrderPayload>, res: Response) {
         try {

@@ -124,6 +124,14 @@ router.post('/ordersItemsReport',
     OrderController.generateOrdersItemsReport
 );
 
+router.post('/ordersDetailsReport',
+    isAdministrativeUser,
+    body('year').notEmpty().withMessage('El año es requerido'),
+    body('week').notEmpty().withMessage('La semana es requerida'),
+    returnValidationErrors,
+    OrderController.getOrdersDetailsReport
+);
+
 router.get('/orderEditDetails/:id',
     isAdministrativeUser,
     param('id').notEmpty().withMessage('El ID es requerido').isNumeric().withMessage('El ID debe de ser un dato númerico'),
