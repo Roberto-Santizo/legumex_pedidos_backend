@@ -66,4 +66,7 @@ export abstract class ContainerDatasource {
 
     /** Assigns a carrier to a confirmed container and returns the updated container with details */
     abstract assignCarrier(containerId: number, carrierId: number): Promise<Container>;
+
+    /** Saves the delivery date and time on the container (set after carrier is assigned) */
+    abstract setDeliverySchedule(containerId: number, deliveryDate: string, deliveryTime: string): Promise<Container>;
 }

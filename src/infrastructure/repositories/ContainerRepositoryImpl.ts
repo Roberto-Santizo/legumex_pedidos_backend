@@ -59,4 +59,8 @@ export class ContainerRepositoryImpl implements ContainerRepository {
     assignCarrier(containerId: number, carrierId: number): Promise<Container> {
         return this.datasource.assignCarrier(containerId, carrierId);
     }
+
+    setDeliverySchedule(containerId: number, deliveryDate: string, deliveryTime: string): Promise<Container> {
+        return this.datasource.setDeliverySchedule(containerId, deliveryDate, deliveryTime);
+    }
 }

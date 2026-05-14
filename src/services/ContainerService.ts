@@ -175,6 +175,22 @@ export class ContainerService {
         return this.formatContainerForResponse(container);
     }
 
+    // ─── PATCH /api/containers/:id/delivery-schedule ─────────────────────────
+
+    async setDeliverySchedule(containerId: number, deliveryDate: string, deliveryTime: string) {
+        // Use getContainerWithDetails so the carrier relation is loaded for the validation below
+        const container = await this.repository.getContainerWithDetails(containerId);
+        if (!container) throw new NotFoundError('Container not found');
+
+        // Delivery schedule can only be set once a carrier is assigned
+        if (!container.carrier) {
+            throw new BadRequestError('Delivery schedule can only be set after a carrier is assigned');
+        }
+
+        const updated = await this.repository.setDeliverySchedule(containerId, deliveryDate, deliveryTime);
+        return this.formatContainerForResponse(updated);
+    }
+
     // ─── 3.9 POST /api/containers/:id/assign-carrier ─────────────────────────
 
     async assignCarrier(containerId: number, carrierId: number) {
@@ -211,7 +227,7 @@ export class ContainerService {
         const invalid = orders.filter((o) => o.status !== 3);
         if (invalid.length > 0) {
             throw new BadRequestError(
-                `The following orders are not in Received status: ${invalid.map((o) => o.id).join(', ')}`,
+                `Please verify that all orders are confirmed before assigning them to the container: ${invalid.map((o) => o.id).join(', ')}`,
             );
         }
     }
@@ -331,6 +347,8 @@ export class ContainerService {
             carrier: container.carrier
                 ? { id: container.carrier.id, name: container.carrier.name, shippingCost: Number(container.carrier.shippingCost) }
                 : null,
+            deliveryDate: container.deliveryDate ?? null,
+            deliveryTime: container.deliveryTime ?? null,
         };
     }
 }

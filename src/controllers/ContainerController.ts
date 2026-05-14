@@ -99,4 +99,15 @@ export abstract class ContainerController {
             errorHandler(error, res);
         }
     }
+    // PATCH /api/containers/:id/delivery-schedule
+    static async setDeliverySchedule(req: Request, res: Response) {
+        try {
+            const containerId = Number(req.params.id);
+            const { deliveryDate, deliveryTime } = req.body;
+            const container = await containerProvider.setDeliverySchedule(containerId, deliveryDate, deliveryTime);
+            responseHandler(res, 200, 'Delivery schedule updated successfully', container);
+        } catch (error) {
+            errorHandler(error, res);
+        }
+    }
 }

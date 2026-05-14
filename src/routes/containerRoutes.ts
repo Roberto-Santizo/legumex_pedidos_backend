@@ -100,4 +100,18 @@ router.post(
     ContainerController.assignCarrier,
 );
 
+// PATCH /api/containers/:id/delivery-schedule — set delivery date and time after carrier is assigned
+router.patch(
+    '/:id/delivery-schedule',
+    param('id').isInt({ min: 1 }).withMessage('Container ID must be a positive integer'),
+    body('deliveryDate')
+        .notEmpty().withMessage('deliveryDate is required')
+        .isISO8601().withMessage('deliveryDate must be a valid date (YYYY-MM-DD)'),
+    body('deliveryTime')
+        .notEmpty().withMessage('deliveryTime is required')
+        .matches(/^\d{2}:\d{2}$/).withMessage('deliveryTime must be in HH:MM format'),
+    returnValidationErrors,
+    ContainerController.setDeliverySchedule,
+);
+
 export default router;

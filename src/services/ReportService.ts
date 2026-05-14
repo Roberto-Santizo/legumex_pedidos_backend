@@ -24,29 +24,38 @@ export class ReportService {
 
         const containers = await repo.find({
             where,
-            relations: ['carrier', 'carrier.dc', 'createdBy', 'confirmedBy'],
-            order: { weekStart: 'ASC', dc: 'ASC' },
+            relations: [
+                'carrier',
+                'createdBy',
+                'confirmedBy',
+                'containerOrders',
+                'containerOrders.order',
+                'containerOrders.order.dc',
+                'containerOrders.order.client',
+            ],
+            order: { weekStart: 'ASC', id: 'ASC' },
         });
 
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet("Transport Cost");
 
         sheet.columns = [
-            { header: "ID",             key: "id",           width: 8  },
-            { header: "DC",             key: "dc",           width: 20 },
-            { header: "Transport Type", key: "transportType",width: 16 },
-            { header: "Week Start",     key: "weekStart",    width: 14 },
-            { header: "Week End",       key: "weekEnd",      width: 14 },
-            { header: "Status",         key: "status",       width: 12 },
-            { header: "Carrier",        key: "carrier",      width: 24 },
-            { header: "Shipping Cost",  key: "shippingCost", width: 14 },
-            { header: "Total Pallets",  key: "totalPallets", width: 14 },
-            { header: "Total Pounds",   key: "totalPounds",  width: 14 },
-            { header: "Total Orders",   key: "totalOrders",  width: 13 },
+            { header: "Container",      key: "containerId",   width: 12 },
+            { header: "PO",             key: "po",            width: 18 },
+            { header: "Client",         key: "client",        width: 24 },
+            { header: "DC",             key: "dc",            width: 20 },
+            { header: "Warehouse",      key: "warehouse",     width: 16 },
+            { header: "Transport Type", key: "transportType", width: 16 },
+            { header: "Required By",    key: "requiredByDate",width: 16 },
+            { header: "Total Pallets",  key: "totalPallets",  width: 14 },
+            { header: "Total Pounds",   key: "totalPounds",   width: 14 },
+            { header: "Carrier",        key: "carrier",       width: 24 },
+            { header: "Shipping Cost",  key: "shippingCost",  width: 14 },
+            { header: "Delivery Date",  key: "deliveryDate",  width: 14 },
+            { header: "Delivery Time",  key: "deliveryTime",  width: 14 },
         ];
 
         // Style header row
-        sheet.getRow(1).font = { bold: true };
         sheet.getRow(1).fill = {
             type: "pattern",
             pattern: "solid",
@@ -55,21 +64,31 @@ export class ReportService {
         sheet.getRow(1).font = { bold: true, color: { argb: "FFFFFFFF" } };
 
         for (const c of containers) {
-            sheet.addRow({
-                id:           c.id,
-                dc:           c.dc,
-                transportType: c.transportType,
-                weekStart:    c.weekStart,
-                weekEnd:      c.weekEnd,
-                status:       c.status,
-                carrier:      c.carrier?.name ?? "—",
-                shippingCost: c.carrierCostSnapshot != null
-                    ? Number(c.carrierCostSnapshot)
-                    : (c.carrier ? Number(c.carrier.shippingCost) : null),
-                totalPallets: c.totalPallets,
-                totalPounds:  c.totalPounds,
-                totalOrders:  c.totalOrders,
-            });
+            const carrierName = c.carrier?.name ?? "—";
+            const shippingCost = c.carrierCostSnapshot != null
+                ? Number(c.carrierCostSnapshot)
+                : (c.carrier ? Number(c.carrier.shippingCost) : null);
+
+            for (const co of c.containerOrders) {
+                const order = co.order;
+                sheet.addRow({
+                    containerId:    `C-${c.id}`,
+                    po:             order.po ?? "—",
+                    client:         order.client?.name ?? "—",
+                    dc:             order.dc?.name ?? "—",
+                    warehouse:      order.dc?.warehouse ?? "—",
+                    transportType:  c.transportType,
+                    requiredByDate: order.requiredByDate
+                        ? new Date(order.requiredByDate).toISOString().slice(0, 10)
+                        : "—",
+                    totalPallets:   order.total_pallets,
+                    totalPounds:    order.total_lbs,
+                    carrier:        carrierName,
+                    shippingCost:   shippingCost,
+                    deliveryDate:   c.deliveryDate ?? "",
+                    deliveryTime:   c.deliveryTime ?? "",
+                });
+            }
         }
 
         return workbook;

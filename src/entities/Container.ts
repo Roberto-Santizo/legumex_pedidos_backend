@@ -1,15 +1,6 @@
 // Created by Luis
 
-import {
-    Column,
-    CreateDateColumn,
-    Entity,
-    Index,
-    JoinColumn,
-    ManyToOne,
-    OneToMany,
-    PrimaryGeneratedColumn,
-} from 'typeorm';
+import {Column,CreateDateColumn,Entity,Index,JoinColumn,ManyToOne,OneToMany,PrimaryGeneratedColumn} from 'typeorm';
 import { User } from './User';
 import { TransportOptions } from './Order'; // Reuse existing enum — do NOT redeclare
 import { ContainerOrder } from './ContainerOrder';
@@ -84,4 +75,11 @@ export class Container {
     // Shipping cost frozen at the moment the carrier was assigned — never changes
     @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
     carrierCostSnapshot: number | null;
+
+    // Delivery schedule — set after carrier is assigned
+    @Column({ type: 'date', nullable: true })
+    deliveryDate: string | null;
+
+    @Column({ type: 'time', nullable: true })
+    deliveryTime: string | null;
 }
