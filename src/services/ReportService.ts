@@ -17,10 +17,10 @@ export class ReportService {
 
         const where: Record<string, unknown> = {
             weekStart: Between(filters.from, filters.to),
+            status: 'confirmed', // only confirmed containers appear in the report — drafts can still be deleted
         };
         if (filters.carrierId) where.carrier = { id: filters.carrierId };
         if (filters.dc) where.dc = filters.dc;
-        if (filters.status) where.status = filters.status;
 
         const containers = await repo.find({
             where,
