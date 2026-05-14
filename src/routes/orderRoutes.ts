@@ -44,6 +44,7 @@ router.post('/addItem/:id',
     param('id').notEmpty().withMessage('El ID es requerido').isNumeric().withMessage('El ID debe de ser un dato númerico'),
     body('product_id').notEmpty().withMessage('El producto es requerido').isNumeric().withMessage('El producto debe de ser un dato númerico'),
     body('total_boxes').notEmpty().withMessage('El total de cajas es requerida').isNumeric().withMessage('El total de cajas debe de ser un dato númerico'),
+    body('supplierStock').notEmpty().withMessage('El supplierStock es requerido'),
     returnValidationErrors,
     OrderController.addItem
 );
@@ -88,6 +89,7 @@ router.patch('/updateOrderItemById/:id/:itemId',
     param('itemId').notEmpty().withMessage('El ID es requerido').isNumeric().withMessage('El itemId debe de ser un dato númerico'),
     body('product_id').notEmpty().withMessage('El producto es requerido').isNumeric().withMessage('El producto debe de ser un dato númerico'),
     body('total_boxes').notEmpty().withMessage('El total de cajas es requerida').isNumeric().withMessage('El total de cajas debe de ser un dato númerico'),
+    body('supplierStock').notEmpty().withMessage('El supplier stock es requerido'),
     returnValidationErrors,
     OrderController.updateOrderItemById
 );

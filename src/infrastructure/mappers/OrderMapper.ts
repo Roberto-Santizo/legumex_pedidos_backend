@@ -40,7 +40,8 @@ export class OrderMapper {
                 order,
                 product: product,
                 product_id: product.id,
-                total_boxes: item.quantity
+                total_boxes: item.quantity,
+                supplierStock: item.supplierStock
             }
 
             formattedProducts.push(newItem);

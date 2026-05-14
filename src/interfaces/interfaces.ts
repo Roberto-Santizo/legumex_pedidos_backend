@@ -59,6 +59,7 @@ export interface OrderProductPayload {
     product: Product;
     order: Order;
     total_boxes: number;
+    supplierStock: string;
 }
 
 export interface UpdateOrderPayload {

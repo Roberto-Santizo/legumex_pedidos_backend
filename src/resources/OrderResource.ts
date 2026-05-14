@@ -56,7 +56,8 @@ export class OrderResource {
             total_pallets: (product.total_boxes / product.product.boxes_per_pallet),
             product: product.product.name,
             internationalCode: product.product.internationalCode,
-            dc: product.product.dc
+            dc: product.product.dc,
+            supplierStock: product.supplierStock
         }
     }
 
@@ -64,7 +65,8 @@ export class OrderResource {
         return {
             id: product.id,
             total_boxes: product.total_boxes,
-            product_id: product.product.id
+            product_id: product.product.id,
+            supplierStock: product.supplierStock
         }
     }
 

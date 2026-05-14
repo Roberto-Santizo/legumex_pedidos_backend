@@ -40,7 +40,8 @@ export class GeminiImpl implements IAProvider {
                                     "products": [
                                         {
                                             "code": string,
-                                            "quantity": number
+                                            "quantity": number,
+                                            "supplierStock": string
                                         }
                                     ]
                                 }
@@ -56,7 +57,7 @@ export class GeminiImpl implements IAProvider {
                             1. Extrae:
                             - "client": nombre del cliente
                             - "Ship To": dirección de entrega (usar esta SOLO para determinar el distribution center)
-                            - "products": lista de productos con su código y cantidad
+                            - "products": lista de productos con su código, cantidad y supplier stock
                             - "required_delivery_date": es la fecha en la que el cliente requiere la entrega de los productos, extraerla en formato string (ej: "yyyy-mm-dd")
                             - "po": Purchase Order Number
 

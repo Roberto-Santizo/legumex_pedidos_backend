@@ -2,7 +2,8 @@ import z from "zod";
 
 export const ProductSchema = z.object({
     quantity: z.number(),
-    code: z.string()
+    code: z.string(),
+    supplierStock: z.string()
 });
 
 export const OrderSchema = z.object({

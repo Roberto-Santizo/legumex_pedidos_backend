@@ -9,6 +9,9 @@ export class OrderProduct {
     @Column('int')
     total_boxes: number;
 
+    @Column({ nullable: false, default: '0000' })
+    supplierStock: string;
+
     @ManyToOne(() => Product, (product) => product.orders, { eager: false, nullable: false })
     @JoinColumn({ 'name': 'product_id' })
     product: Product;
