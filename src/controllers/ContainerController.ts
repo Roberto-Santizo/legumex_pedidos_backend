@@ -1,24 +1,19 @@
-// Created by Luis
-
 import { Request, Response } from 'express';
 import { errorHandler, responseHandler } from '../helpers/httpHelpers';
 import { containerProvider } from '../providers/containerRepositoryProvider';
 
 export abstract class ContainerController {
-    // GET /api/containers/week?date=YYYY-MM-DD
     static async getWeekView(req: Request, res: Response) {
         try {
-            // Default to today if no date is provided
             const date = (req.query.date as string) ?? new Date().toISOString().slice(0, 10);
-            const data = await containerProvider.getWeekView(date);
-            responseHandler(res, 200, 'Week view retrieved successfully', data);
+            const weekSchedule = await containerProvider.getWeekContainerSchedule(date);
+            responseHandler(res, 200, 'Week view retrieved successfully', weekSchedule);
         } catch (error) {
             errorHandler(error, res);
         }
     }
 
-    // POST /api/containers
-    static async store(req: Request, res: Response) {
+    static async createContainer(req: Request, res: Response) {
         try {
             const { transportType, dc, weekStart, orderIds } = req.body;
             const container = await containerProvider.createContainer(
@@ -31,7 +26,6 @@ export abstract class ContainerController {
         }
     }
 
-    // POST /api/containers/:id/orders
     static async addOrders(req: Request, res: Response) {
         try {
             const containerId = Number(req.params.id);
@@ -43,7 +37,6 @@ export abstract class ContainerController {
         }
     }
 
-    // DELETE /api/containers/:id/orders/:orderId
     static async removeOrder(req: Request, res: Response) {
         try {
             const containerId = Number(req.params.id);
@@ -55,19 +48,17 @@ export abstract class ContainerController {
         }
     }
 
-    // POST /api/containers/:id/confirm
-    static async confirm(req: Request, res: Response) {
+    static async confirmContainer(req: Request, res: Response) {
         try {
             const containerId = Number(req.params.id);
-            const result = await containerProvider.confirmContainer(containerId, req.user.id);
-            responseHandler(res, 200, 'Container confirmed successfully', result);
+            const confirmedContainer = await containerProvider.confirmContainer(containerId, req.user.id);
+            responseHandler(res, 200, 'Container confirmed successfully', confirmedContainer);
         } catch (error) {
             errorHandler(error, res);
         }
     }
 
-    // DELETE /api/containers/:id
-    static async destroy(req: Request, res: Response) {
+    static async deleteContainer(req: Request, res: Response) {
         try {
             const containerId = Number(req.params.id);
             await containerProvider.deleteContainer(containerId);
@@ -77,8 +68,7 @@ export abstract class ContainerController {
         }
     }
 
-    // GET /api/containers/:id
-    static async show(req: Request, res: Response) {
+    static async getContainerById(req: Request, res: Response) {
         try {
             const containerId = Number(req.params.id);
             const container = await containerProvider.getContainerById(containerId);
@@ -88,7 +78,6 @@ export abstract class ContainerController {
         }
     }
 
-    // POST /api/containers/:id/assign-carrier
     static async assignCarrier(req: Request, res: Response) {
         try {
             const containerId = Number(req.params.id);
@@ -99,7 +88,7 @@ export abstract class ContainerController {
             errorHandler(error, res);
         }
     }
-    // PATCH /api/containers/:id/delivery-schedule
+
     static async setDeliverySchedule(req: Request, res: Response) {
         try {
             const containerId = Number(req.params.id);

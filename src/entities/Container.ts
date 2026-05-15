@@ -1,4 +1,3 @@
-// Created by Luis
 
 import {Column,CreateDateColumn,Entity,Index,JoinColumn,ManyToOne,OneToMany,PrimaryGeneratedColumn} from 'typeorm';
 import { User } from './User';
@@ -12,7 +11,6 @@ export enum ContainerStatus {
 }
 
 @Entity()
-// Composite indexes to speed up the most common queries
 @Index(['weekStart', 'weekEnd'])
 @Index(['status'])
 @Index(['weekStart', 'transportType', 'dc'])
@@ -26,7 +24,6 @@ export class Container {
     @Column({ type: 'varchar', length: 200 })
     dc: string;
 
-    // Monday of the week this container belongs to (ISO date string YYYY-MM-DD)
     @Column({ type: 'date' })
     weekStart: string;
 
@@ -37,7 +34,6 @@ export class Container {
     @Column('enum', { enum: ContainerStatus, default: ContainerStatus.DRAFT })
     status: ContainerStatus;
 
-    // Denormalized totals — kept in sync whenever orders are added/removed
     @Column('float', { default: 0 })
     totalPallets: number;
 
@@ -64,7 +60,7 @@ export class Container {
     @Column({ type: 'varchar', length: 500, nullable: true })
     notes: string | null;
 
-    @OneToMany(() => ContainerOrder, (co) => co.container, { cascade: true })
+    @OneToMany(() => ContainerOrder, (containerOrder) => containerOrder.container, { cascade: true })
     containerOrders: ContainerOrder[];
 
     // Transport assignment — set after the container is confirmed

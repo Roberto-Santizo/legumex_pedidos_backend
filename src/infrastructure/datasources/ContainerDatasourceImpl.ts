@@ -1,8 +1,8 @@
 // Created by Luis
-
-import { Between, EntityManager, In, Repository } from 'typeorm';
+import { EntityManager, In, Repository } from 'typeorm';
 import appDatasource from '../../config/datasource';
 import { ContainerDatasource, CreateContainerInput, WeekViewData } from '../../domain/datasources/ContainerDatasource';
+import { getISOWeekAndYear } from '../../utils/week';
 import { Container, ContainerStatus } from '../../entities/Container';
 import { ContainerOrder } from '../../entities/ContainerOrder';
 import { Order } from '../../entities/Order';
@@ -23,13 +23,12 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
 
     // --- Read operations ---
     
-
     async getWeekView(weekStart: string, weekEnd: string): Promise<WeekViewData> {
-        // Load all status=3 orders whose requiredByDate falls inside the week.
-        // 'client' is not eager so we must load it explicitly.
-        // 'products' (OrderProduct) also not eager; Product inside OrderProduct IS eager.
+        const { year, week } = getISOWeekAndYear(new Date(weekStart + 'T12:00:00'));
+
+        // Load all status 2-3 orders that belong to this week using the year/week fields.
         const orders = await this.orderRepo.find({
-            where: { status: Between(2, 3), requiredByDate: Between(new Date(weekStart + 'T00:00:00'), new Date(weekEnd + 'T23:59:59')) },
+            where: { year, week, status: In([2, 3]) },
             relations: ['client', 'products'],
             order: { id: 'DESC' },
         });
@@ -40,6 +39,7 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
             relations: [
                 'containerOrders',
                 'containerOrders.order',
+                'containerOrders.order.dc',
                 'containerOrders.order.client',
                 'containerOrders.order.products',
                 'createdBy',
@@ -55,19 +55,19 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
     async getAvailableOrders(weekStart: string, weekEnd: string): Promise<Order[]> {
         // Find all order IDs already assigned to a container
         const assignedRows = await this.containerOrderRepo.find({ select: ['orderId'] });
-        const assignedIds = assignedRows.map((co) => co.orderId);
+        const assignedIds = assignedRows.map((containerOrder) => containerOrder.orderId);
 
         const query = this.orderRepo
-            .createQueryBuilder('o')
-            .where('o.status = :status', { status: 3 })
-            .andWhere('o.requiredByDate BETWEEN :start AND :end', {
+            .createQueryBuilder('order')
+            .where('order.status = :status', { status: 3 })
+            .andWhere('order.requiredByDate BETWEEN :start AND :end', {
                 start: weekStart,
                 end: weekEnd,
             });
 
         // Exclude already-assigned orders only if there are any
         if (assignedIds.length > 0) {
-            query.andWhere('o.id NOT IN (:...ids)', { ids: assignedIds });
+            query.andWhere('order.id NOT IN (:...ids)', { ids: assignedIds });
         }
 
         return query.getMany();
@@ -85,7 +85,7 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
     async findOrdersAlreadyInContainer(orderIds: number[]): Promise<number[]> {
         if (orderIds.length === 0) return [];
         const rows = await this.containerOrderRepo.findBy({ orderId: In(orderIds) });
-        return rows.map((r) => r.orderId);
+        return rows.map((containerOrder) => containerOrder.orderId);
     }
 
     async isOrderInContainer(containerId: number, orderId: number): Promise<boolean> {
@@ -99,6 +99,7 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
             relations: [
                 'containerOrders',
                 'containerOrders.order',
+                'containerOrders.order.dc',
                 'containerOrders.order.client',
                 'containerOrders.order.products',
                 'createdBy',
@@ -130,7 +131,7 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
 
         // Status 5: orders now have a carrier assigned
         const orderRows = await this.containerOrderRepo.findBy({ containerId });
-        const orderIds = orderRows.map((co) => co.orderId);
+        const orderIds = orderRows.map((containerOrder) => containerOrder.orderId);
         if (orderIds.length > 0) {
             await this.orderRepo.update({ id: In(orderIds) }, { status: 5 });
         }
@@ -145,8 +146,8 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
             const orders = await manager.findBy(Order, { id: In(input.orderIds) });
 
             // Compute denormalized totals from the actual order values
-            const totalPallets = orders.reduce((sum, o) => sum + o.total_pallets, 0);
-            const totalPounds = orders.reduce((sum, o) => sum + o.total_lbs, 0);
+            const totalPallets = orders.reduce((sum, order) => sum + order.total_pallets, 0);
+            const totalPounds = orders.reduce((sum, order) => sum + order.total_lbs, 0);
 
             // Insert the container row
             const container = manager.create(Container, {
@@ -164,14 +165,14 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
 
             // Insert one ContainerOrder row per order (with snapshot values)
             for (const order of orders) {
-                const co = manager.create(ContainerOrder, {
+                const containerOrder = manager.create(ContainerOrder, {
                     containerId: saved.id,
                     orderId: order.id,
                     addedBy: { id: input.createdById } as User,
                     snapshotPallets: order.total_pallets,
                     snapshotPounds: order.total_lbs,
                 });
-                await manager.save(co);
+                await manager.save(containerOrder);
             }
 
             // Status 4: order is now assigned to a container
@@ -192,14 +193,14 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
             const orders = await manager.findBy(Order, { id: In(orderIds) });
 
             for (const order of orders) {
-                const co = manager.create(ContainerOrder, {
+                const containerOrder = manager.create(ContainerOrder, {
                     containerId,
                     orderId: order.id,
                     addedBy: { id: addedById } as User,
                     snapshotPallets: order.total_pallets,
                     snapshotPounds: order.total_lbs,
                 });
-                await manager.save(co);
+                await manager.save(containerOrder);
             }
 
             // Status 4: order is now assigned to a container
@@ -210,7 +211,7 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
             await this.recalculateTotals(manager, containerId);
         });
 
-        return this.containerRepo.findOneBy({ id: containerId });
+        return this.getContainerWithDetails(containerId) as Promise<Container>;
     }
 
     async removeOrderFromContainer(containerId: number, orderId: number): Promise<Container> {
@@ -221,7 +222,7 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
             await this.recalculateTotals(manager, containerId);
         });
 
-        return this.containerRepo.findOneBy({ id: containerId });
+        return this.getContainerWithDetails(containerId) as Promise<Container>;
     }
 
     async confirmContainer(containerId: number, userId: number): Promise<Container> {
@@ -233,13 +234,13 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
                 confirmedBy: { id: userId } as User,
             },
         );
-        return this.containerRepo.findOneBy({ id: containerId });
+        return this.getContainerWithDetails(containerId) as Promise<Container>;
     }
 
     async deleteContainer(containerId: number): Promise<void> {
         // Revert all orders to status 3 before the CASCADE removes ContainerOrder rows
         const orderRows = await this.containerOrderRepo.findBy({ containerId });
-        const orderIds = orderRows.map((co) => co.orderId);
+        const orderIds = orderRows.map((containerOrder) => containerOrder.orderId);
         if (orderIds.length > 0) {
             await this.orderRepo.update({ id: In(orderIds) }, { status: 3 });
         }
@@ -257,8 +258,8 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
      */
     private async recalculateTotals(manager: EntityManager, containerId: number): Promise<void> {
         const rows = await manager.findBy(ContainerOrder, { containerId });
-        const totalPallets = rows.reduce((sum, co) => sum + co.snapshotPallets, 0);
-        const totalPounds = rows.reduce((sum, co) => sum + co.snapshotPounds, 0);
+        const totalPallets = rows.reduce((sum, containerOrder) => sum + containerOrder.snapshotPallets, 0);
+        const totalPounds = rows.reduce((sum, containerOrder) => sum + containerOrder.snapshotPounds, 0);
 
         await manager.update(Container, { id: containerId }, {
             totalPallets,

@@ -1,4 +1,3 @@
-// Created by Luis
 
 import { Carrier } from '../../entities/Carrier';
 import { CarrierRate } from '../../entities/CarrierRate';
@@ -19,6 +18,7 @@ export interface UpdateCarrierInput {
 
 export abstract class CarrierDatasource {
     abstract getAll(): Promise<Carrier[]>;
+    abstract getByDcId(dcId: number): Promise<Carrier[]>;
     abstract create(input: CreateCarrierInput): Promise<Carrier>;
     abstract update(id: number, input: UpdateCarrierInput): Promise<Carrier>;
     abstract delete(id: number): Promise<void>;

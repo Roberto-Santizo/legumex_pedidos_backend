@@ -16,7 +16,11 @@ export class CarrierDatasourceImpl implements CarrierDatasource {
     }
 
     async getAll(): Promise<Carrier[]> {
-        return this.repo.find({ relations: ['dc'], order: { name: 'ASC' } });
+        return this.repo.find({ relations: ['dc'], order: { id: 'DESC' } });
+    }
+
+    async getByDcId(dcId: number): Promise<Carrier[]> {
+        return this.repo.find({ where: { dc: { id: dcId } }, relations: ['dc'], order: { id: 'DESC' } });
     }
 
     async findById(id: number): Promise<Carrier | null> {

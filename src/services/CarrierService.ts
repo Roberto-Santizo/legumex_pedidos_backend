@@ -1,6 +1,6 @@
-// Created by Luis
-
 import { CarrierRepository } from '../domain/repositories/CarrierRepository';
+import { Carrier } from '../entities/Carrier';
+import { CarrierRate } from '../entities/CarrierRate';
 import { BadRequestError, NotFoundError } from '../infrastructure/errors/errors';
 
 export class CarrierService {
@@ -8,18 +8,23 @@ export class CarrierService {
 
     async getAll() {
         const carriers = await this.repository.getAll();
-        return carriers.map((c) => this.format(c));
+        return carriers.map((carrier) => this.toCarrierResponse(carrier));
+    }
+
+    async getByDcId(dcId: number) {
+        const carriers = await this.repository.getByDcId(dcId);
+        return carriers.map((carrier) => this.toCarrierResponse(carrier));
     }
 
     async create(input: { name: string; shippingCost: number; rateUpdatedAt: string; dcId?: number | null }) {
         this.validateFields(input.name, input.shippingCost, input.rateUpdatedAt);
         const carrier = await this.repository.create(input);
-        return this.format(carrier);
+        return this.toCarrierResponse(carrier);
     }
 
     async update(id: number, input: { name?: string; shippingCost?: number; rateUpdatedAt?: string; dcId?: number | null }) {
-        const existing = await this.repository.findById(id);
-        if (!existing) throw new NotFoundError('Carrier not found');
+        const carrier = await this.repository.findById(id);
+        if (!carrier) throw new NotFoundError('Carrier not found');
 
         if (input.name !== undefined && input.name.trim() === '') {
             throw new BadRequestError('Name cannot be empty');
@@ -28,30 +33,30 @@ export class CarrierService {
             throw new BadRequestError('Shipping cost must be a non-negative number');
         }
 
-        const updated = await this.repository.update(id, {
+        const updatedCarrier = await this.repository.update(id, {
             name: input.name,
             shippingCost: input.shippingCost,
             rateUpdatedAt: input.rateUpdatedAt,
             ...('dcId' in input && { dcId: input.dcId }),
         });
-        return this.format(updated);
+        return this.toCarrierResponse(updatedCarrier);
     }
 
     async delete(id: number) {
-        const existing = await this.repository.findById(id);
-        if (!existing) throw new NotFoundError('Carrier not found');
+        const carrier = await this.repository.findById(id);
+        if (!carrier) throw new NotFoundError('Carrier not found');
         await this.repository.delete(id);
     }
 
     async getRates(carrierId: number) {
-        const existing = await this.repository.findById(carrierId);
-        if (!existing) throw new NotFoundError('Carrier not found');
+        const carrier = await this.repository.findById(carrierId);
+        if (!carrier) throw new NotFoundError('Carrier not found');
         const rates = await this.repository.getRates(carrierId);
-        return rates.map((r) => ({
-            id: r.id,
-            cost: Number(r.cost),
-            effectiveDate: r.effectiveDate,
-            createdAt: r.createdAt,
+        return rates.map((carrierRate: CarrierRate) => ({
+            id: carrierRate.id,
+            cost: Number(carrierRate.cost),
+            effectiveDate: carrierRate.effectiveDate,
+            createdAt: carrierRate.createdAt,
         }));
     }
 
@@ -61,15 +66,15 @@ export class CarrierService {
         if (!rateUpdatedAt) throw new BadRequestError('Rate updated date is required');
     }
 
-    private format(c: any) {
+    private toCarrierResponse(carrier: Carrier) {
         return {
-            id: c.id,
-            name: c.name,
-            shippingCost: Number(c.shippingCost),
-            rateUpdatedAt: c.rateUpdatedAt,
-            dc: c.dc ? { id: c.dc.id, name: c.dc.name, code: c.dc.code } : null,
-            createdAt: c.createdAt,
-            updatedAt: c.updatedAt,
+            id: carrier.id,
+            name: carrier.name,
+            shippingCost: Number(carrier.shippingCost),
+            rateUpdatedAt: carrier.rateUpdatedAt,
+            dc: carrier.dc ? { id: carrier.dc.id, name: carrier.dc.name, code: carrier.dc.code } : null,
+            createdAt: carrier.createdAt,
+            updatedAt: carrier.updatedAt,
         };
     }
 }

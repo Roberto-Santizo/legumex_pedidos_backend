@@ -1,5 +1,3 @@
-// Created by Luis
-
 import { Router } from 'express';
 import { body, param } from 'express-validator';
 import { authenticated } from '../middlewares/authentication';
@@ -10,10 +8,8 @@ const router = Router();
 
 router.use(authenticated);
 
-// GET /api/carriers
-router.get('/', CarrierController.index);
+router.get('/', CarrierController.getAllCarriers);
 
-// POST /api/carriers
 router.post(
     '/',
     body('name').notEmpty().withMessage('name is required'),
@@ -24,10 +20,9 @@ router.post(
         .notEmpty().withMessage('rateUpdatedAt is required')
         .isISO8601().withMessage('rateUpdatedAt must be a valid date (YYYY-MM-DD)'),
     returnValidationErrors,
-    CarrierController.store,
+    CarrierController.createCarrier,
 );
 
-// PUT /api/carriers/:id
 router.put(
     '/:id',
     param('id').isInt({ min: 1 }).withMessage('id must be a positive integer'),
@@ -35,23 +30,21 @@ router.put(
     body('shippingCost').optional().isFloat({ min: 0 }).withMessage('shippingCost must be a non-negative number'),
     body('rateUpdatedAt').optional().isISO8601().withMessage('rateUpdatedAt must be a valid date (YYYY-MM-DD)'),
     returnValidationErrors,
-    CarrierController.update,
+    CarrierController.updateCarrier,
 );
 
-// DELETE /api/carriers/:id
 router.delete(
     '/:id',
     param('id').isInt({ min: 1 }).withMessage('id must be a positive integer'),
     returnValidationErrors,
-    CarrierController.destroy,
+    CarrierController.deleteCarrier,
 );
 
-// GET /api/carriers/:id/rates
 router.get(
     '/:id/rates',
     param('id').isInt({ min: 1 }).withMessage('id must be a positive integer'),
     returnValidationErrors,
-    CarrierController.rates,
+    CarrierController.getCarrierRates,
 );
 
 export default router;
