@@ -1,4 +1,5 @@
 import { header } from "express-validator";
+import ExcelJS from 'exceljs';
 
 export const itemsColumns = [
     { header: 'Orden de venta', key: 'order', width: 10 },
@@ -25,12 +26,15 @@ export const headersColumns = [
     { header: 'Fecha de recepción solicitada', key: 'receiptDate', width: 10 },
 ];
 
-export const orderDetailsColumns = [
+export const orderDetailsColumns: Partial<ExcelJS.Column>[] = [
     { header: 'Po', key: 'po', width: 10 },
     { header: 'Dc', key: 'dc', width: 10 },
     { header: 'Transport Type', key: 'transportType', width: 10 },
     { header: 'Product', key: 'productName', width: 10 },
+    { header: 'Warehouse', key: 'warehouse', width: 10 },
+    { header: 'Weight', key: 'weight', width: 10 },
+    { header: 'Pallets', key: 'pallets', width: 10 },
     { header: 'International Code', key: 'productInternationalCode', width: 10 },
+    { header: 'Supplier Stock', key: 'supplierStock', width: 10 },
     { header: 'Boxes', key: 'boxes', width: 10 },
-
 ];

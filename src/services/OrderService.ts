@@ -17,6 +17,7 @@ import { Request } from 'express';
 import { TransportOptions } from "../entities/Order";
 import ExcelJS from 'exceljs';
 import z from "zod";
+import { formatCell } from "../utils/excel";
 
 export class OrderService {
     constructor(private repository: OrderRepository, private ia: IAProvider) { }
@@ -228,9 +229,10 @@ export class OrderService {
     async generateOrdersDetailsReport(year: number, week: number, user: User): Promise<ExcelJS.Buffer> {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('orders');
+        worksheet.columns = orderDetailsColumns;
+        worksheet.getRow(1).eachCell(formatCell);
         const orders = await this.getOrders(user, null, year, week);
         const items = await this.getOrderItemsByOrdersIds(orders);
-        worksheet.columns = orderDetailsColumns;
 
         ExcelHandler.addRowsOrdersDetailsToWorksheet(items, worksheet);
 

@@ -1,6 +1,7 @@
 import { DateHandler } from './DateHandler';
 import { Order } from '../entities/Order';
 import { OrderProduct } from '../entities/OrderProduct';
+import { OrderResource } from '../resources/OrderResource';
 import ExcelJS from 'exceljs';
 
 export class ExcelHandler {
@@ -39,11 +40,18 @@ export class ExcelHandler {
 
     static addRowsOrdersDetailsToWorksheet(items: OrderProduct[], worksheet: ExcelJS.Worksheet) {
         items.map(item => {
+            const total_lbs = item.total_boxes * item.product.presentation;
+            const total_pallets = item.total_boxes / item.product.boxes_per_pallet;
+
             worksheet.addRow({
                 po: item.order.po,
                 transportType: item.order.transportType,
                 productName: item.product.name,
+                warehouse: item.order.dc.warehouse,
+                weight: total_lbs,
+                pallets: total_pallets,
                 productInternationalCode: item.product.internationalCode,
+                supplierStock: item.supplierStock,
                 dc: item.order.dc.extended_name,
                 boxes: item.total_boxes
             });

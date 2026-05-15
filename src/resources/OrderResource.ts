@@ -2,7 +2,7 @@ import { DateHandler } from '../classes/DateHandler';
 import { Order, OrderProduct } from '../entities/entities';
 
 export class OrderResource {
-    static orderEditDetails(order: Order){
+    static orderEditDetails(order: Order) {
         return {
             po: order.po,
             requiredByDate: DateHandler.formatEnglishDate(order.requiredByDate),
