@@ -73,6 +73,7 @@ export class CarrierService {
             shippingCost: Number(carrier.shippingCost),
             rateUpdatedAt: carrier.rateUpdatedAt,
             dc: carrier.dc ? { id: carrier.dc.id, name: carrier.dc.name, code: carrier.dc.code } : null,
+            clientName: carrier.dc?.client?.name ?? null,
             createdAt: carrier.createdAt,
             updatedAt: carrier.updatedAt,
         };

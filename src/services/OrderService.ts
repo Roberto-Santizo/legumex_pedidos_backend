@@ -79,6 +79,9 @@ export class OrderService {
 
     async createOrder(user: User, payload: CreateOrderPayload) {
         this._validateTransportType(payload.transportType);
+        if (!payload.requiredByDate) {
+            throw new ConflictError('Required by date is mandatory');
+        }
         const client = await clientProvider.getClientById(payload.client_id);
         const dc = await dcProvider.getDcById(payload.dc_id);
 
@@ -240,6 +243,9 @@ export class OrderService {
     }
 
     async updateOrder(id: Order['id'], payload: UpdateOrderPayload) {
+        if (!payload.requiredByDate) {
+            throw new ConflictError('Required by date is mandatory');
+        }
         const client = await clientProvider.getClientById(payload.client_id);
         payload.client = client;
         const dc = await dcProvider.getDcById(payload.dc_id);

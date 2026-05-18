@@ -16,15 +16,15 @@ export class CarrierDatasourceImpl implements CarrierDatasource {
     }
 
     async getAll(): Promise<Carrier[]> {
-        return this.repo.find({ relations: ['dc'], order: { id: 'DESC' } });
+        return this.repo.find({ relations: ['dc', 'dc.client'], order: { id: 'DESC' } });
     }
 
     async getByDcId(dcId: number): Promise<Carrier[]> {
-        return this.repo.find({ where: { dc: { id: dcId } }, relations: ['dc'], order: { id: 'DESC' } });
+        return this.repo.find({ where: { dc: { id: dcId } }, relations: ['dc', 'dc.client'], order: { id: 'DESC' } });
     }
 
     async findById(id: number): Promise<Carrier | null> {
-        return this.repo.findOne({ where: { id }, relations: ['dc'] });
+        return this.repo.findOne({ where: { id }, relations: ['dc', 'dc.client'] });
     }
 
     async create(input: CreateCarrierInput): Promise<Carrier> {
@@ -35,7 +35,7 @@ export class CarrierDatasourceImpl implements CarrierDatasource {
         });
         const saved = await this.repo.save(carrier);
 
-        if (input.dcId) {
+        if (input.dcId != null) {
             await appDatasource.createQueryBuilder()
                 .relation(Carrier, 'dc')
                 .of(saved.id)
@@ -51,7 +51,7 @@ export class CarrierDatasourceImpl implements CarrierDatasource {
             }),
         );
 
-        return this.repo.findOne({ where: { id: saved.id }, relations: ['dc'] });
+        return this.repo.findOne({ where: { id: saved.id }, relations: ['dc', 'dc.client'] });
     }
 
     async update(id: number, input: UpdateCarrierInput): Promise<Carrier> {
@@ -83,7 +83,7 @@ export class CarrierDatasourceImpl implements CarrierDatasource {
             );
         }
 
-        return this.repo.findOne({ where: { id }, relations: ['dc'] });
+        return this.repo.findOne({ where: { id }, relations: ['dc', 'dc.client'] });
     }
 
     async delete(id: number): Promise<void> {

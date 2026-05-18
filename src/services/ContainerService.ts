@@ -294,7 +294,9 @@ export class ContainerService {
             transportType: order.transportType,
             dc: order.dc,
             warehouse: order.dc?.warehouse ?? null,
-            requiredByDate: order.requiredByDate,
+            requiredByDate: order.requiredByDate
+                ? new Date(order.requiredByDate).toISOString().slice(0, 10)
+                : null,
             totalPallets: order.total_pallets,
             totalPounds: order.total_lbs,
             totalBoxes: order.total_boxes,
