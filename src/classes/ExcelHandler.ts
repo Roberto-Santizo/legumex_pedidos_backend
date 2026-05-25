@@ -53,7 +53,8 @@ export class ExcelHandler {
                 productInternationalCode: item.product.internationalCode,
                 supplierStock: item.supplierStock,
                 dc: item.order.dc.extended_name,
-                boxes: item.total_boxes
+                boxes: item.total_boxes,
+                date: item.order.requiredByDate
             });
         })
     }

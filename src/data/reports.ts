@@ -37,4 +37,5 @@ export const orderDetailsColumns: Partial<ExcelJS.Column>[] = [
     { header: 'International Code', key: 'productInternationalCode', width: 10 },
     { header: 'Supplier Stock', key: 'supplierStock', width: 10 },
     { header: 'Boxes', key: 'boxes', width: 10 },
+    { header: 'Date', key: 'date', width: 10 },
 ];
