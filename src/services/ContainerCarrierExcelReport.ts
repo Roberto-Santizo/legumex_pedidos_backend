@@ -3,24 +3,22 @@ import appDatasource from "../config/datasource";
 import { Container } from "../entities/Container";
 import { Between } from "typeorm";
 
-export interface TransportCostReportFilters {
+export interface ContainerReportFilters {
     from: string;
     to: string;
     carrierId?: number;
     dc?: string;
-    status?: string;
 }
 
-export class ReportService {
-    async getTransportCostReport(filters: TransportCostReportFilters): Promise<ExcelJS.Workbook> {
+export class ContainerCarrierExcelReport {
+    async generate(filters: ContainerReportFilters): Promise<ExcelJS.Workbook> {
         const repo = appDatasource.getRepository(Container);
 
         const where: Record<string, unknown> = {
             weekStart: Between(filters.from, filters.to),
-            status: 'confirmed', // only confirmed containers appear in the report — drafts can still be deleted
+            status: 'confirmed',
         };
         if (filters.carrierId) where.carrier = { id: filters.carrierId };
-        if (filters.dc) where.dc = filters.dc;
 
         const containers = await repo.find({
             where,
@@ -35,6 +33,13 @@ export class ReportService {
             ],
             order: { weekStart: 'ASC', id: 'ASC' },
         });
+
+        // Filter by DC through the orders (a container matches if any of its orders belongs to that DC)
+        const filtered = filters.dc
+            ? containers.filter((container) =>
+                  container.containerOrders.some((co) => co.order?.dc?.name === filters.dc),
+              )
+            : containers;
 
         const workbook = new ExcelJS.Workbook();
         const sheet = workbook.addWorksheet("Transport Cost");
@@ -55,7 +60,6 @@ export class ReportService {
             { header: "Delivery Time",  key: "deliveryTime",  width: 14 },
         ];
 
-        // Style header row
         sheet.getRow(1).fill = {
             type: "pattern",
             pattern: "solid",
@@ -63,21 +67,21 @@ export class ReportService {
         };
         sheet.getRow(1).font = { bold: true, color: { argb: "FFFFFFFF" } };
 
-        for (const c of containers) {
-            const carrierName = c.carrier?.name ?? "—";
-            const shippingCost = c.carrierCostSnapshot != null
-                ? Number(c.carrierCostSnapshot)
-                : (c.carrier ? Number(c.carrier.shippingCost) : null);
+        for (const container of filtered) {
+            const carrierName = container.carrier?.name ?? "—";
+            const shippingCost = container.carrierCostSnapshot != null
+                ? Number(container.carrierCostSnapshot)
+                : (container.carrier ? Number(container.carrier.shippingCost) : null);
 
-            for (const co of c.containerOrders) {
-                const order = co.order;
+            for (const containerOrder of container.containerOrders) {
+                const order = containerOrder.order;
                 sheet.addRow({
-                    containerId:    `C-${c.id}`,
+                    containerId:    `C-${container.id}`,
                     po:             order.po ?? "—",
                     client:         order.client?.name ?? "—",
                     dc:             order.dc?.name ?? "—",
                     warehouse:      order.dc?.warehouse ?? "—",
-                    transportType:  c.transportType,
+                    transportType:  container.transportType,
                     requiredByDate: order.requiredByDate
                         ? new Date(order.requiredByDate).toISOString().slice(0, 10)
                         : "—",
@@ -85,8 +89,8 @@ export class ReportService {
                     totalPounds:    order.total_lbs,
                     carrier:        carrierName,
                     shippingCost:   shippingCost,
-                    deliveryDate:   c.deliveryDate ?? "",
-                    deliveryTime:   c.deliveryTime ?? "",
+                    deliveryDate:   container.deliveryDate ?? "",
+                    deliveryTime:   container.deliveryTime ?? "",
                 });
             }
         }

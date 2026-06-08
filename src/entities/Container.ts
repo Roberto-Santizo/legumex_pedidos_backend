@@ -13,16 +13,13 @@ export enum ContainerStatus {
 @Entity()
 @Index(['weekStart', 'weekEnd'])
 @Index(['status'])
-@Index(['weekStart', 'transportType', 'dc'])
+@Index(['weekStart', 'transportType'])
 export class Container {
     @PrimaryGeneratedColumn('increment')
     id: number;
 
     @Column('enum', { enum: TransportOptions })
     transportType: TransportOptions;
-
-    @Column({ type: 'varchar', length: 200 })
-    dc: string;
 
     @Column({ type: 'date' })
     weekStart: string;

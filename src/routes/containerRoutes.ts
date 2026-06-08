@@ -21,7 +21,6 @@ router.get(
 router.post(
     '/',
     body('transportType').notEmpty().withMessage('transportType is required'),
-    body('dc').notEmpty().withMessage('dc is required'),
     body('weekStart')
         .notEmpty()
         .withMessage('weekStart is required')
@@ -94,7 +93,7 @@ router.patch(
         .notEmpty().withMessage('deliveryDate is required')
         .isISO8601().withMessage('deliveryDate must be a valid date (YYYY-MM-DD)'),
     body('deliveryTime')
-        .notEmpty().withMessage('deliveryTime is required')
+        .optional({ nullable: true, checkFalsy: true })
         .matches(/^\d{2}:\d{2}$/).withMessage('deliveryTime must be in HH:MM format'),
     returnValidationErrors,
     ContainerController.setDeliverySchedule,

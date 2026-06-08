@@ -4,7 +4,6 @@ import { ContainerRepository } from '../domain/repositories/ContainerRepository'
 import { Container, ContainerStatus } from '../entities/Container';
 import { Order, TransportOptions } from '../entities/Order';
 import { OrderProduct } from '../entities/OrderProduct';
-import { Dc } from '../entities/Dc';
 import { BadRequestError, ConflictError, NotFoundError } from '../infrastructure/errors/errors';
 import { getCurrentWeekBounds, getISOWeekAndYear, getWeekBounds } from '../utils/week';
 
@@ -52,7 +51,6 @@ export class ContainerService {
     async createContainer(
         input: {
             transportType: TransportOptions;
-            dc: string;
             weekStart: string;
             orderIds: number[];
         },
@@ -66,7 +64,6 @@ export class ContainerService {
         this.validateOrdersExist(input.orderIds, orders.map((order) => order.id));
         this.validateOrdersStatus(orders);
         this.validateOrdersTransportType(orders, input.transportType);
-        this.validateOrdersDc(orders, input.dc);
         const { year: weekYear, week: weekNumber } = getISOWeekAndYear(new Date(`${weekStart}T12:00:00`));
         this.validateOrdersInWeek(orders, weekYear, weekNumber);
 
@@ -82,7 +79,6 @@ export class ContainerService {
 
         return this.repository.createContainer({
             transportType: input.transportType,
-            dc: input.dc,
             weekStart,
             weekEnd,
             createdById: userId,
@@ -97,7 +93,6 @@ export class ContainerService {
         this.validateOrdersExist(orderIds, orders.map((order) => order.id));
         this.validateOrdersStatus(orders);
         this.validateOrdersTransportType(orders, container.transportType);
-        this.validateOrdersDc(orders, container.dc);
         const { year: weekYear, week: weekNumber } = getISOWeekAndYear(new Date(`${container.weekStart}T12:00:00`));
         this.validateOrdersInWeek(orders, weekYear, weekNumber);
 
@@ -232,15 +227,6 @@ export class ContainerService {
         }
     }
 
-    private validateOrdersDc(orders: { id: number; dc: Dc }[], expected: string): void {
-        const mismatchedOrders = orders.filter((order) => order.dc.name !== expected);
-        if (mismatchedOrders.length > 0) {
-            throw new BadRequestError(
-                `The following orders belong to a different DC: ${mismatchedOrders.map((order) => order.id).join(', ')}`,
-            );
-        }
-    }
-
     private validateOrdersInWeek(
         orders: { id: number; year: number; week: number }[],
         expectedYear: number,
@@ -313,13 +299,16 @@ export class ContainerService {
             this.toOrderResponse(containerOrder.order, container.id),
         );
 
-        const dcId = container.containerOrders?.[0]?.order?.dc?.id ?? null;
+        const dc = [...new Set(
+            container.containerOrders
+                .map((containerOrder) => containerOrder.order?.dc?.name)
+                .filter((name): name is string => !!name),
+        )].join(' / ') || null;
 
         return {
             id: container.id,
             transportType: container.transportType,
-            dc: container.dc,
-            dcId,
+            dc,
             weekStart: container.weekStart,
             weekEnd: container.weekEnd,
             status: container.status,

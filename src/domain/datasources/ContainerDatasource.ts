@@ -8,7 +8,6 @@ import { TransportOptions } from '../../entities/Order';
 
 export interface CreateContainerInput {
     transportType: TransportOptions;
-    dc: string;
     weekStart: string;
     weekEnd: string;
     createdById: number;

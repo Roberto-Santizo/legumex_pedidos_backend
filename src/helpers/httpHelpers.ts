@@ -44,6 +44,7 @@ export function errorHandler(err: Error, res: Response) {
         });
     }
 
+    console.error('[500]', err);
     return res.status(500).json({
         statusCode: 500,
         message: err.message

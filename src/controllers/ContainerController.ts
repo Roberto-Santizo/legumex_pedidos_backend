@@ -15,9 +15,9 @@ export abstract class ContainerController {
 
     static async createContainer(req: Request, res: Response) {
         try {
-            const { transportType, dc, weekStart, orderIds } = req.body;
+            const { transportType, weekStart, orderIds } = req.body;
             const container = await containerProvider.createContainer(
-                { transportType, dc, weekStart, orderIds },
+                { transportType, weekStart, orderIds },
                 req.user.id,
             );
             responseHandler(res, 201, 'Container created successfully', container);

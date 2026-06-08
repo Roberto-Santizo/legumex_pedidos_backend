@@ -112,7 +112,7 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
     async setDeliverySchedule(containerId: number, deliveryDate: string, deliveryTime: string): Promise<Container> {
         // Persist the delivery date and time — both fields are nullable so this can be called
         // independently of carrier assignment, though the UI only shows it after carrier is set
-        await this.containerRepo.update({ id: containerId }, { deliveryDate, deliveryTime });
+        await this.containerRepo.update({ id: containerId }, { deliveryDate, deliveryTime: deliveryTime || null });
         return this.getContainerWithDetails(containerId);
     }
 
@@ -152,7 +152,6 @@ export class ContainerDatasourceImpl implements ContainerDatasource {
             // Insert the container row
             const container = manager.create(Container, {
                 transportType: input.transportType,
-                dc: input.dc,
                 weekStart: input.weekStart,
                 weekEnd: input.weekEnd,
                 status: ContainerStatus.DRAFT,
